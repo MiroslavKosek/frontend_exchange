@@ -5,6 +5,8 @@ import Aura from '@primeuix/themes/aura';
 import { providePrimeNG } from 'primeng/config';
 
 import { routes } from './app.routes';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './interceptors/auth-interceptor';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -68,12 +70,13 @@ export const appConfig: ApplicationConfig = {
           darkModeSelector: '.app-dark',
           cssLayer: {
             name: 'primeng',
-            order: 'tailwind-base, primeng, tailwind-utilities',
+            order: 'app-styles, primeng, another-css-library',
           },
         },
       },
     }),
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes)
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([authInterceptor]))
   ]
 };
