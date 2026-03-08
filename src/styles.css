@@ -1,3 +1,37 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "tailwindcss";
+:root {
+  --card-border: 1px solid var(--p-surface-200);
+  --card-background: #ffffff;
+}
+
+:root[class="app-dark"] {
+  --card-border: 1px solid transparent;
+  --card-background: var(--p-surface-900);
+}
+
+* {
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    Segoe UI Symbol;
+}
+
+body {
+  margin: 0;
+}
+
+.card {
+  background: var(--card-background);
+  border: var(--card-border);
+  padding: 2rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
