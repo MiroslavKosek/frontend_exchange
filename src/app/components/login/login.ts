@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
@@ -15,7 +15,6 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 @Component({
   selector: 'app-login',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     CardModule,
     InputTextModule,
@@ -24,7 +23,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
     MessageModule,
     InputGroupModule,
     InputGroupAddonModule
-  ],
+],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

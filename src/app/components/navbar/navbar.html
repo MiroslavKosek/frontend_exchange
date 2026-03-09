@@ -7,12 +7,10 @@
     </ng-template>
     <ng-template #end>
         <div class="flex items-center gap-2">
-            <p-button 
-                [label]="username()" 
+            <p-button [label]="username()" 
                 icon="pi pi-user" 
                 variant="text" 
-                (onClick)="userMenu.toggle($event)">
-            </p-button>
+                (onClick)="userMenu.toggle($event)" />
             <p-menu #userMenu [model]="userMenuItems" [popup]="true" />
         </div>
     </ng-template>

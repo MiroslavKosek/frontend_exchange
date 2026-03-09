@@ -1,19 +1,19 @@
 import { Routes } from '@angular/router';
-import { Login } from './components/login/login';
-import { Layout } from './components/layout/layout';
+
+
 import { authGuard } from './guards/auth-guard';
-import { Dashboard } from './components/dashboard/dashboard';
-import { History } from './components/history/history';
+
+
 
 export const routes: Routes = [
-  { path: 'login', component: Login },
+  { path: 'login', loadComponent: () => import('./components/login/login').then(m => m.Login) },
   {
     path: '',
-    component: Layout,
+    loadComponent: () => import('./components/layout/layout').then(m => m.Layout),
     canActivate: [authGuard],
     children: [
-      { path: 'dashboard', component: Dashboard },
-      { path: 'history', component: History },
+      { path: 'dashboard', loadComponent: () => import('./components/dashboard/dashboard').then(m => m.Dashboard) },
+      { path: 'history', loadComponent: () => import('./components/history/history').then(m => m.History) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, OnDestroy, Signal, signal } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { AuthService } from '../../services/auth-service';
 import { ThemeService } from '../../services/theme-service';
 import { MenubarModule } from 'primeng/menubar';
@@ -12,11 +12,10 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-navbar',
   imports: [
-    CommonModule,
     MenubarModule,
     ButtonModule,
     MenuModule
-  ],
+],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
