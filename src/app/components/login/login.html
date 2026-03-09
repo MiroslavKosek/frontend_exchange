@@ -1,4 +1,4 @@
-<div class="card login bg-gray-100" >
+<div class="card login" >
     <p-card header="Login to Exchange App" [style]="{ width: '400px' }" class="m-2">
         @for (message of messages(); track message.severity; let first = $first) {
             <p-message [severity]="message.severity" [ngClass]="{ 'mt-4': !first }" [closable]="message?.closable">
