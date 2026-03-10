@@ -38,7 +38,8 @@ export class Login {
   });
 
   isLoading = signal<boolean>(false);
-  messages = signal<{ severity: string; content: string }[]>([]);
+  messages = signal<{ severity: "success" | "info" | "warn" | "error" | "secondary" | "contrast" | null | undefined;
+    content: string, closable: boolean }[]>([]);
   formSubmitted = signal<boolean>(false);
   
   onSubmit() {
@@ -56,7 +57,7 @@ export class Login {
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.messages.set([{ severity: 'error', content: 'Invalid username or password.' }]);
+          this.messages.set([{ severity: 'error', content: 'Invalid username or password.', closable: false }]);
           console.error('Login error', err);
         }
       });
