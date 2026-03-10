@@ -38,7 +38,7 @@ export class Login {
   });
 
   isLoading = signal<boolean>(false);
-  messages = signal<any[]>([]);
+  messages = signal<{ severity: string; content: string }[]>([]);
   formSubmitted = signal<boolean>(false);
   
   onSubmit() {
