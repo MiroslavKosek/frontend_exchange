@@ -6,7 +6,7 @@ import { isPlatformBrowser } from '@angular/common';
   providedIn: 'root',
 })
 export class ThemeService {
-  private platformId = inject<Object>(PLATFORM_ID);
+  private platformId = inject<object>(PLATFORM_ID);
 
   private themeSubject = new BehaviorSubject<string>('light');
   theme$ = this.themeSubject.asObservable();
@@ -19,23 +19,25 @@ export class ThemeService {
 
   private initTheme() {
     const storedTheme = localStorage.getItem('themePreference');
-    
-    const prefersDarkMedia = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
+    const prefersDarkMedia = typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-color-scheme: dark)')
+      : null;
+
     if (storedTheme) {
       this.setTheme(storedTheme, false);
     } else {
-      this.setTheme(prefersDarkMedia.matches ? 'dark' : 'light', false);
+      this.setTheme(prefersDarkMedia?.matches ? 'dark' : 'light', false);
     }
 
-    prefersDarkMedia.addEventListener('change', (e) => {
+    prefersDarkMedia?.addEventListener('change', (e) => {
       if (!localStorage.getItem('themePreference')) {
         this.setTheme(e.matches ? 'dark' : 'light', false);
       }
     });
   }
 
-  setTheme(theme: string, saveUserPreference: boolean = true) {
+  setTheme(theme: string, saveUserPreference = true) {
     this.themeSubject.next(theme);
 
     if (isPlatformBrowser(this.platformId)) {
