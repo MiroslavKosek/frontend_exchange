@@ -45,7 +45,9 @@ jobs:
           retention-days: 14
 
       - name: Build project
-        run: npm run build
+        run: |
+          npm run build -- --base-href /frontend_exchange/
+          cp dist/frontend-exchange/browser/index.html dist/frontend-exchange/browser/404.html
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
