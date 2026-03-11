@@ -38,8 +38,6 @@ export class ThemeService {
   }
 
   setTheme(theme: string, saveUserPreference = true) {
-    this.themeSubject.next(theme);
-
     if (isPlatformBrowser(this.platformId)) {
       if (saveUserPreference) {
         localStorage.setItem('themePreference', theme);
@@ -53,6 +51,8 @@ export class ThemeService {
         element?.classList.add('app-dark');
       }
     }
+
+    this.themeSubject.next(theme);
   }
 
   getCurrentTheme(): string {
