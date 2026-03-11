@@ -1,0 +1,18 @@
+.border-l-4 {
+    border-left-style: var(--tw-border-style);
+    border-left-width: 4px;
+}
+
+@property --tw-border-style {
+    syntax: "*";
+    inherits: false;
+    initial-value: solid;
+}
+
+.border-l-green-500 {
+    border-left-color: var(--p-green-500) !important;
+}
+
+.border-l-red-500 {
+    border-left-color: var(--p-red-500) !important;
+}

@@ -38,8 +38,11 @@ export class Login {
   });
 
   isLoading = signal<boolean>(false);
-  messages = signal<{ severity: "success" | "info" | "warn" | "error" | "secondary" | "contrast" | null | undefined;
-    content: string, closable: boolean }[]>([]);
+  messages = signal<{
+    severity: "success" | "info" | "warn" | "error" | "secondary" | "contrast" | null | undefined;
+    content: string;
+    closable: boolean;
+  }[]>([]);
   formSubmitted = signal<boolean>(false);
   
   onSubmit() {
