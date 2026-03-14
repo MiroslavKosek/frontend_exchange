@@ -5,13 +5,17 @@ import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { Mock, vi } from 'vitest';
 
 import { Dashboard } from './dashboard';
-import { ExchangeService, LatestRatesResponse } from '../../services/exchange-service';
+import { ExchangeService, ExtremesResponse, LatestRatesResponse } from '../../services/exchange-service';
 import { ThemeService } from '../../services/theme-service';
 
 describe('Dashboard Component', () => {
   let component: Dashboard;
   let fixture: ComponentFixture<Dashboard>;
-  let mockExchangeService: { getLatestRates: Mock };
+  let mockExchangeService: {
+    getAvailableCurrencies: Mock;
+    getLatestRates: Mock;
+    getExtremes: Mock;
+  };
   let mockThemeService: { theme$: Observable<string> };
   let themeSubject: BehaviorSubject<string>;
 
@@ -26,11 +30,20 @@ describe('Dashboard Component', () => {
     ]
   };
 
+  const mockExtremesData: ExtremesResponse = {
+    base: 'CZK',
+    date: '2026-03-10',
+    strongest: { currency: 'EUR', value: 0.04 },
+    weakest: { currency: 'AUD', value: 1.5 }
+  };
+
   beforeEach(async () => {
     themeSubject = new BehaviorSubject<string>('light');
 
     mockExchangeService = {
-      getLatestRates: vi.fn().mockReturnValue(of(mockApiData))
+      getAvailableCurrencies: vi.fn().mockReturnValue(of(['CZK', 'EUR', 'USD', 'AUD', 'BGN'])),
+      getLatestRates: vi.fn().mockReturnValue(of(mockApiData)),
+      getExtremes: vi.fn().mockReturnValue(of(mockExtremesData))
     };
 
     mockThemeService = {
@@ -59,8 +72,11 @@ describe('Dashboard Component', () => {
 
   it('should initialize with correct data', () => {
     expect(component).toBeTruthy();
+
+    expect(mockExchangeService.getAvailableCurrencies).toHaveBeenCalled();
     
     expect(mockExchangeService.getLatestRates).toHaveBeenCalledWith('CZK');
+    expect(mockExchangeService.getExtremes).toHaveBeenCalledWith('CZK');
     
     expect(component.baseCurrency()).toBe('CZK');
     expect(component.date()).toBe('2026-03-10');
@@ -84,16 +100,18 @@ describe('Dashboard Component', () => {
 
     expect(consoleSpy).toHaveBeenCalled();
     expect(component.isLoading()).toBe(false);
-    expect(component.error()).toBe('Failed to load exchange rates. Please try again later.');
+    expect(component.error()).toBe('Failed to load dashboard data. Please try again later.');
   });
 
   it('should update data when base currency changes (Coverage for onBaseCurrencyChange)', () => {
     const newMockData: LatestRatesResponse = { ...mockApiData, base: 'USD' };
     mockExchangeService.getLatestRates.mockReturnValue(of(newMockData));
+    mockExchangeService.getExtremes.mockReturnValue(of({ ...mockExtremesData, base: 'USD' }));
 
     component.onBaseCurrencyChange('USD');
     
     expect(mockExchangeService.getLatestRates).toHaveBeenCalledWith('USD');
+    expect(mockExchangeService.getExtremes).toHaveBeenCalledWith('USD');
     expect(component.baseCurrency()).toBe('USD');
   });
 

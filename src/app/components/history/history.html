@@ -1,1 +1,134 @@
-<p>history works!</p>
+<div class="p-1 w-full mx-auto">
+    <div class="mb-4">
+        <h1 class="text-3xl font-bold m-0 mb-2 text-color">History of Exchange Rates</h1>
+        <p class="text-500 m-0 mt-1">
+            Period: <strong>{{ periodInfo()?.start }}</strong> to <strong>{{ periodInfo()?.end }}</strong>
+        </p>
+    </div>
+    <p-toolbar class="mb-4">
+        <ng-template #start>
+            <div class="flex flex-wrap gap-2 items-end">
+                <div>
+                    <label for="history-date-range" class="font-semibold text-color text-sm">Period (From - To)</label>
+                    <p-datepicker 
+                        inputId="history-date-range"
+                        [(ngModel)]="dateRange" 
+                        selectionMode="range" 
+                        [readonlyInput]="true" 
+                        dateFormat="dd. mm. yy"
+                        [showIcon]="true"
+                        class="w-full">
+                    </p-datepicker>
+                </div>
+                <div>
+                    <label for="history-base-currency" class="font-semibold text-color text-sm">Base Currency</label>
+                    <p-select 
+                        inputId="history-base-currency"
+                        [options]="availableCurrencies()" 
+                        [(ngModel)]="baseCurrency" 
+                        class="w-full">
+                    </p-select>
+                </div>
+                <div>
+                    <label for="history-target-currencies" class="font-semibold text-color text-sm">Target Currencies (min 1)</label>
+                    <p-multiSelect 
+                        inputId="history-target-currencies"
+                        [options]="availableCurrencies()" 
+                        [(ngModel)]="selectedTargets" 
+                        [maxSelectedLabels]="3"
+                        display="chip"
+                        class="w-full">
+                    </p-multiSelect>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template #end>
+            <div class="flex items-center gap-2">
+                <div>
+                    <p-button 
+                        label="Calculate" 
+                        icon="pi pi-calculator" 
+                        (onClick)="fetchHistory()" 
+                        [loading]="isLoading()"
+                        styleClass="w-full">
+                    </p-button>
+                </div>
+            </div>
+        </ng-template>
+    </p-toolbar>
+    @if (isLoading()) {
+        <div class="flex justify-center items-center p-12">
+            <p-progressSpinner ariaLabel="Loading..."></p-progressSpinner>
+        </div>
+    }
+    @if (error()) {
+        <p-message severity="error" styleClass="w-full mt-4">
+            {{ error() }}
+        </p-message>
+    }
+    @if (!isLoading() && !error() && averagesData().length > 0) {
+        <div class="grid">
+            <div class="col-12 lg:col-6 flex flex-column">
+                <div class="card p-6 h-full">
+                    <h2 class="text-xl font-semibold m-0 mb-3 text-color">Average Rates in the Selected Period</h2>
+                    <p-chart type="bar" [data]="chartData" [options]="chartOptions"></p-chart>
+                </div>
+            </div>
+            <div class="col-12 lg:col-6 flex flex-column">
+                <div class="card p-4 h-full">
+                    <p-table 
+                        #dt
+                        [value]="averagesData()" 
+                        [paginator]="true" 
+                        [rows]="10" 
+                        [globalFilterFields]="['currency']"
+                        class="p-datatable-sm"
+                    >
+                        <ng-template #caption>
+                            <div class="flex flex-column gap-2 p-2">
+                                <h2 class="text-xl font-semibold m-0 mb-3 text-color">Average Values</h2>
+                                <p-iconField iconPosition="left" class="w-full">
+                                    <p-inputIcon>
+                                        <i class="pi pi-search"></i>
+                                    </p-inputIcon>
+                                    <input 
+                                        pInputText 
+                                        type="text" 
+                                        (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+                                        placeholder="Search..." 
+                                        class="w-full"
+                                    />
+                                </p-iconField>
+                            </div>
+                        </ng-template>
+                        <ng-template #header>
+                            <tr>
+                                <th pSortableColumn="currency" style="width: 50%">
+                                    <div class="flex align-items-center gap-2">
+                                        Code <p-sortIcon field="currency" />
+                                    </div>
+                                </th>
+                                <th pSortableColumn="rate" style="width: 50%">
+                                    <div class="flex align-items-center justify-content-end gap-2">
+                                        Average <p-sortIcon field="rate" />
+                                    </div>
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-avg>
+                            <tr>
+                                <td class="font-bold text-color">
+                                    <div class="flex items-center gap-2">
+                                        {{ avg.currency }}
+                                    </div>
+                                </td>
+                                <td class="text-color text-right">{{ avg.rate | number:'1.2-4' }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+            
+        </div>
+    }
+</div>

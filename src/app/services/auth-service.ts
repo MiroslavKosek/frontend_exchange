@@ -44,19 +44,15 @@ export class AuthService {
 
   getUsernameFromToken(): string {
     const token = this.getToken();
-    if (!token) return 'User'; // Fallback, pokud token neexistuje
+    if (!token) return 'User';
 
     try {
-      // JWT token má formát: header.payload.signature
       const payloadBase64Url = token.split('.')[1];
       
-      // Nahrazení znaků pro standardní Base64
       const base64 = payloadBase64Url.replace(/-/g, '+').replace(/_/g, '/');
       
-      // Dekódování a parsování JSONu
       const decodedPayload = JSON.parse(window.atob(base64));
 
-      // FastAPI (OAuth2) standardně ukládá username do atributu 'sub'
       return decodedPayload.sub || 'User';
     } catch (error) {
       console.error('Error parsing JWT token:', error);
