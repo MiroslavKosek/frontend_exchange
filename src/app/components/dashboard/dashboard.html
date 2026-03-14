@@ -2,7 +2,7 @@
     <div class="flex flex-column md:flex-row items-start gap-4">
         <div>
             <h1 class="text-3xl font-bold m-0 mb-3 text-color">Current Rates</h1>
-            <label for="baseCurrencySelect" class="mr-1">Base:</label>
+            <label for="baseCurrencySelect" class="mr-1">Base Currency:</label>
             <p-select 
                 id="baseCurrencySelect"
                 [options]="availableCurrencies()" 
@@ -15,98 +15,22 @@
                 Release Date: <strong>{{ date() }}</strong>
             </p>
         </div>
-        <div class="card p-4 border-l-4 border-l-green-500 md:ml-auto">
-            <div class="text-500 font-semibold mb-1 text-sm uppercase">Strongest Currency (least per 1 {{ baseCurrency() }})</div>
-            <div class="flex items-end gap-2">
-                <div class="text-3xl font-bold text-color">{{ strongestCurrency()?.currency }}</div>
-                <div class="text-3xl text-500 mx-auto">{{ strongestCurrency()?.rate | number:'1.2-4' }}</div>
+        @if (!isLoading() && !error() && allRates().length > 0) {
+            <div class="card p-4 border-l-4 border-l-green-500 md:ml-auto">
+                <div class="text-500 font-semibold mb-1 text-sm uppercase">Strongest Currency (least per 1 {{ baseCurrency() }})</div>
+                <div class="flex items-end gap-2">
+                    <div class="text-3xl font-bold text-color">{{ strongestCurrency()?.currency }}</div>
+                    <div class="text-3xl text-500 mx-auto">{{ strongestCurrency()?.value | number:'1.2-4' }}</div>
+                </div>
             </div>
-        </div>
-        <div class="card p-4 border-l-4 border-l-red-500">
-            <div class="text-500 font-semibold mb-1 text-sm uppercase">Weakest Currency (most per 1 {{ baseCurrency() }})</div>
-            <div class="flex items-end gap-2">
-                <div class="text-3xl font-bold text-color">{{ weakestCurrency()?.currency }}</div>
-                <div class="text-3xl text-500 mx-auto">{{ weakestCurrency()?.rate | number:'1.2-4' }}</div>
+            <div class="card p-4 border-l-4 border-l-red-500">
+                <div class="text-500 font-semibold mb-1 text-sm uppercase">Weakest Currency (most per 1 {{ baseCurrency() }})</div>
+                <div class="flex items-end gap-2">
+                    <div class="text-3xl font-bold text-color">{{ weakestCurrency()?.currency }}</div>
+                    <div class="text-3xl text-500 mx-auto">{{ weakestCurrency()?.value | number:'1.2-4' }}</div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="grid mt-4">
-        <div class="col-12 lg:col-6 flex flex-column">
-            <div class="card p-6 h-full">
-                <h2 class="text-xl font-semibold m-0 mb-3 text-color">Comparison of Rates</h2>
-                    
-                <p-multiSelect 
-                    [options]="allRates()" 
-                    [(ngModel)]="selectedCurrencies" 
-                    optionLabel="currency" 
-                    placeholder="Select currencies for chart" 
-                    [filter]="true"
-                    filterBy="currency"
-                    display="chip"
-                    [maxSelectedLabels]="4"
-                    class="w-full md:w-auto min-w-[20rem] mb-3">
-                </p-multiSelect>
-
-                <p-chart type="bar" [data]="chartData" [options]="chartOptions"></p-chart>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 flex flex-column">
-            <div class="card p-4 h-full">
-                <p-table 
-                    #dt
-                    [value]="allRates()" 
-                    [paginator]="true" 
-                    [rows]="10" 
-                    [rowsPerPageOptions]="[10, 25, 50]"
-                    [globalFilterFields]="['currency']"
-                    class="p-datatable-sm"
-                >
-                    <ng-template #caption>
-                        <div class="flex flex-column gap-2 p-2">
-                            <h2 class="text-xl font-semibold m-0 mb-3 text-color">Rate Table</h2>
-                            <p-iconField iconPosition="left" class="w-full">
-                                <p-inputIcon>
-                                    <i class="pi pi-search"></i>
-                                </p-inputIcon>
-                                <input 
-                                    pInputText 
-                                    type="text" 
-                                    (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
-                                    placeholder="Search..." 
-                                    class="w-full"
-                                />
-                            </p-iconField>
-                        </div>
-                    </ng-template>
-
-                    <ng-template #header>
-                        <tr>
-                            <th pSortableColumn="currency" style="width: 50%">
-                                <div class="flex align-items-center gap-2">
-                                    Code <p-sortIcon field="currency" />
-                                </div>
-                            </th>
-                            <th pSortableColumn="rate" style="width: 50%">
-                                <div class="flex align-items-center justify-content-end gap-2">
-                                    Value <p-sortIcon field="rate" />
-                                </div>
-                            </th>
-                        </tr>
-                    </ng-template>
-
-                    <ng-template #body let-rate>
-                        <tr class="hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
-                            <td class="font-bold text-color">
-                                <div class="flex items-center gap-2">
-                                    {{ rate.currency }}
-                                </div>
-                            </td>
-                            <td class="text-color text-right font-mono">{{ rate.rate | number:'1.2-4' }}</td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </div>
-        </div>
+        }
     </div>
     @if (isLoading()) {
         <div class="flex justify-center items-center p-12">
@@ -114,8 +38,87 @@
         </div>
     }
     @if (error()) {
-        <p-message severity="error" styleClass="w-full mb-4">
+        <p-message severity="error" styleClass="w-full mt-4">
             {{ error() }}
         </p-message>
+    }
+    @if (!isLoading() && !error() && allRates().length > 0) {
+        <div class="grid mt-4">
+            <div class="col-12 lg:col-6 flex flex-column">
+                <div class="card p-6 h-full">
+                    <h2 class="text-xl font-semibold m-0 mb-3 text-color">Comparison of Rates</h2>
+                        
+                    <p-multiSelect 
+                        [options]="allRates()" 
+                        [(ngModel)]="selectedCurrencies" 
+                        optionLabel="currency" 
+                        placeholder="Select currencies for chart" 
+                        [filter]="true"
+                        filterBy="currency"
+                        display="chip"
+                        [maxSelectedLabels]="4"
+                        class="w-full md:w-auto min-w-[20rem] mb-3">
+                    </p-multiSelect>
+
+                    <p-chart type="bar" [data]="chartData" [options]="chartOptions"></p-chart>
+                </div>
+            </div>
+            <div class="col-12 lg:col-6 flex flex-column">
+                <div class="card p-4 h-full">
+                    <p-table 
+                        #dt
+                        [value]="allRates()" 
+                        [paginator]="true" 
+                        [rows]="10" 
+                        [globalFilterFields]="['currency']"
+                        class="p-datatable-sm"
+                    >
+                        <ng-template #caption>
+                            <div class="flex flex-column gap-2 p-2">
+                                <h2 class="text-xl font-semibold m-0 mb-3 text-color">Rate Table</h2>
+                                <p-iconField iconPosition="left" class="w-full">
+                                    <p-inputIcon>
+                                        <i class="pi pi-search"></i>
+                                    </p-inputIcon>
+                                    <input 
+                                        pInputText 
+                                        type="text" 
+                                        (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+                                        placeholder="Search..." 
+                                        class="w-full"
+                                    />
+                                </p-iconField>
+                            </div>
+                        </ng-template>
+
+                        <ng-template #header>
+                            <tr>
+                                <th pSortableColumn="currency" style="width: 50%">
+                                    <div class="flex align-items-center gap-2">
+                                        Code <p-sortIcon field="currency" />
+                                    </div>
+                                </th>
+                                <th pSortableColumn="rate" style="width: 50%">
+                                    <div class="flex align-items-center justify-content-end gap-2">
+                                        Value <p-sortIcon field="rate" />
+                                    </div>
+                                </th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template #body let-rate>
+                            <tr>
+                                <td class="font-bold text-color">
+                                    <div class="flex items-center gap-2">
+                                        {{ rate.currency }}
+                                    </div>
+                                </td>
+                                <td class="text-color text-right">{{ rate.rate | number:'1.2-4' }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </div>
     }
 </div>
