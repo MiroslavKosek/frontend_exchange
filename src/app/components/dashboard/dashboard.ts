@@ -13,6 +13,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -46,8 +47,8 @@ export class Dashboard implements OnInit {
   date = signal<string>('');
   allRates = signal<ExchangeRateItem[]>([]);
 
-  strongestCurrency = signal<ExchangeRateItem | null>(null);
-  weakestCurrency = signal<ExchangeRateItem | null>(null);
+  strongestCurrency = signal<{currency: string, value: number} | null>(null);
+  weakestCurrency = signal<{currency: string, value: number} | null>(null);
   
   chartData: {
     labels: string[];
@@ -77,41 +78,50 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit() {
-    this.fetchData();
+    this.isLoading.set(true);
+    this.exchangeService.getAvailableCurrencies().subscribe({
+      next: (currencies) => {
+        this.availableCurrencies.set(currencies);
+        this.fetchData();
+      },
+      error: (err) => {
+        console.error('Error fetching currencies:', err);
+        this.error.set('Failed to load available currencies.');
+        this.isLoading.set(false);
+      }
+    });
   }
 
   fetchData(targetBase = 'CZK') {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.exchangeService.getLatestRates(targetBase).subscribe({
-      next: (data) => {
+    forkJoin({
+      ratesData: this.exchangeService.getLatestRates(targetBase),
+      extremesData: this.exchangeService.getExtremes(targetBase)
+    }).subscribe({
+      next: (results) => {
+        const data = results.ratesData;
+        const extremes = results.extremesData;
+
         this.baseCurrency.set(data.base);
         this.date.set(data.date);
         this.allRates.set(data.rates);
         
-        if (this.availableCurrencies().length === 0) {
-           const currencies = [data.base, ...data.rates.map(r => r.currency)].sort();
-           this.availableCurrencies.set(currencies);
-        }
-
-        if (data.rates.length > 0) {
-           const sortedRates = [...data.rates].sort((a, b) => a.rate - b.rate);
-           this.strongestCurrency.set(sortedRates[0]);
-           this.weakestCurrency.set(sortedRates[sortedRates.length - 1]);
-        }
-        
         const initialSelection = data.rates.slice(0, 10);
         this.selectedCurrencies.set(initialSelection);
         
+        this.strongestCurrency.set(extremes.strongest);
+        this.weakestCurrency.set(extremes.weakest);
+
         this.initChartOptions();
         this.updateChartData(initialSelection);
         
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Error:', err);
-        this.error.set('Failed to load exchange rates. Please try again later.');
+        console.error('Error fetching dashboard data:', err);
+        this.error.set('Failed to load dashboard data. Please try again later.');
         this.isLoading.set(false);
       }
     });
