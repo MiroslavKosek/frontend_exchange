@@ -47,9 +47,9 @@ body {
 }
 
 .icon-en {
-  background-image: url('/icons/en.png');
+  background-image: url('../public/icons/en.png');
 }
 
 .icon-cz {
-  background-image: url('/icons/cs.png');
+  background-image: url('../public/icons/cs.png');
 }
