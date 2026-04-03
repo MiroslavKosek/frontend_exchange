@@ -35,3 +35,21 @@ body {
   border-radius: 10px;
   margin-bottom: 1rem;
 }
+
+.icon-en,
+.icon-cz {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.icon-en {
+  background-image: url('/icons/en.png');
+}
+
+.icon-cz {
+  background-image: url('/icons/cs.png');
+}

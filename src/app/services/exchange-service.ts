@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable, map } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface ExchangeRateItem {
   currency: string;
@@ -53,6 +54,7 @@ export interface CurrenciesApiResponse {
   providedIn: 'root'
 })
 export class ExchangeService {
+  private translate = inject(TranslateService);
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
@@ -68,10 +70,10 @@ export class ExchangeService {
         const ratesArray: ExchangeRateItem[] = Object.entries(response.rates).map(
           ([currency, rate]) => ({ currency, rate })
         );
-        
+
         return {
           base: response.base,
-          date: this.convertDateToLocalFormat(response.date),
+          date: response.date,
           rates: ratesArray
         };
       })
@@ -80,11 +82,6 @@ export class ExchangeService {
 
   getExtremes(base = 'CZK'): Observable<ExtremesResponse> {
     return this.http.get<ExtremesResponse>(`${this.apiUrl}/api/rates/analytics/extremes?base=${base}`);
-  }
-
-  private convertDateToLocalFormat(dateStr: string): string {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString();
   }
 
   getHistoricalRates(startDate: string, endDate: string, base = 'CZK', targets: string[] = []): Observable<HistoricalRatesResponse> {
@@ -108,8 +105,8 @@ export class ExchangeService {
         return {
           base: response.base,
           period: {
-            start: this.convertDateToLocalFormat(response.period.start),
-            end: this.convertDateToLocalFormat(response.period.end)
+            start: response.period.start,
+            end: response.period.end
           },
           averages: averagesArray
         };
