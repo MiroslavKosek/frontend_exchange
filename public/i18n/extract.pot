@@ -1,0 +1,195 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: \n"
+
+#: ./src/app/components/history/history.html:114
+msgid "Average"
+msgstr ""
+
+#: ./src/app/components/history/history.html:74
+msgid "Average Rates in the Selected Period"
+msgstr ""
+
+#: ./src/app/components/history/history.html:90
+msgid "Average Values"
+msgstr ""
+
+#: ./src/app/components/history/history.ts:202
+msgid "Average rate against {{ baseCurrency }}"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:5
+#: ./src/app/components/history/history.html:24
+msgid "Base Currency"
+msgstr ""
+
+#: ./src/app/components/history/history.html:50
+msgid "Calculate"
+msgstr ""
+
+#: ./src/app/components/navbar/navbar.ts:75
+msgid "Change language"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:99
+#: ./src/app/components/history/history.html:109
+msgid "Code"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:49
+msgid "Comparison of Rates"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:4
+msgid "Current Rates"
+msgstr ""
+
+#: ./src/app/components/navbar/navbar.ts:84
+msgid "Czech"
+msgstr ""
+
+#: ./src/app/components/navbar/navbar.ts:91
+msgid "Dark mode"
+msgstr ""
+
+#: ./src/app/components/navbar/navbar.ts:60
+msgid "Dashboard"
+msgstr ""
+
+#: ./src/app/components/navbar/navbar.ts:79
+msgid "English"
+msgstr ""
+
+#: ./src/app/components/navbar/navbar.html:5
+msgid "Exchange App"
+msgstr ""
+
+#: ./src/app/components/history/history.ts:182
+msgid "Failed to download analytical data. Please check your connection and parameters."
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.ts:117
+#: ./src/app/components/history/history.ts:135
+msgid "Failed to load available currencies."
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.ts:156
+msgid "Failed to load dashboard data. Please try again later."
+msgstr ""
+
+#: ./src/app/components/navbar/navbar.ts:65
+msgid "History"
+msgstr ""
+
+#: ./src/app/components/history/history.html:3
+msgid "History of Exchange Rates"
+msgstr ""
+
+#: ./src/app/components/login/login.ts:68
+msgid "Invalid username or password."
+msgstr ""
+
+#: ./src/app/components/navbar/navbar.ts:91
+msgid "Light mode"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:37
+#: ./src/app/components/history/history.html:62
+msgid "Loading..."
+msgstr ""
+
+#: ./src/app/components/login/login.html:31
+msgid "Login"
+msgstr ""
+
+#: ./src/app/components/login/login.html:2
+msgid "Login to Exchange App"
+msgstr ""
+
+#: ./src/app/components/navbar/navbar.ts:99
+msgid "Logout"
+msgstr ""
+
+#: ./src/app/components/history/history.ts:165
+msgid "No data available for the selected period."
+msgstr ""
+
+#: ./src/app/components/login/login.html:25
+msgid "Password"
+msgstr ""
+
+#: ./src/app/components/login/login.html:28
+msgid "Password is required."
+msgstr ""
+
+#: ./src/app/components/history/history.html:12
+msgid "Period (From - To)"
+msgstr ""
+
+#: ./src/app/components/history/history.html:5
+msgid "Period:"
+msgstr ""
+
+#: ./src/app/components/history/history.ts:144
+msgid "Please select a valid date range (From - To)."
+msgstr ""
+
+#: ./src/app/components/history/history.ts:150
+msgid "Please select at least one target currency for averaging."
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:79
+msgid "Rate Table"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.ts:178
+msgid "Rate against {{ baseCurrency }}"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:15
+msgid "Release Date"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:88
+#: ./src/app/components/history/history.html:99
+msgid "Search..."
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:55
+msgid "Select currencies for chart"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:20
+msgid "Strongest Currency"
+msgstr ""
+
+#: ./src/app/components/history/history.html:33
+msgid "Target Currencies (min 1)"
+msgstr ""
+
+#: ./src/app/components/login/login.html:14
+msgid "Username"
+msgstr ""
+
+#: ./src/app/components/login/login.html:17
+msgid "Username is required."
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:104
+msgid "Value"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:27
+msgid "Weakest Currency"
+msgstr ""
+
+#: ./src/app/components/history/history.html:5
+msgid "to"
+msgstr ""
+
+#: ./src/app/components/dashboard/dashboard.html:60
+#: ./src/app/components/history/history.html:39
+msgid "{0} items selected"
+msgstr ""

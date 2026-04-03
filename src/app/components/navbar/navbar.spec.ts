@@ -63,8 +63,8 @@ describe('Navbar Component', () => {
     it('should set isDarkMode to false and update the menu when the theme is light', () => {
       expect(component.isDarkMode()).toBe(false);
 
-      expect(component.userMenuItems[0].label).toBe('Dark mode');
-      expect(component.userMenuItems[0].icon).toBe('pi pi-moon');
+      expect(component.userMenuItems[1].label).toBe('Dark mode');
+      expect(component.userMenuItems[1].icon).toBe('pi pi-moon');
     });
 
     it('should set isDarkMode to true and update the menu when the theme is dark', () => {
@@ -72,8 +72,8 @@ describe('Navbar Component', () => {
       fixture.detectChanges(); 
 
       expect(component.isDarkMode()).toBe(true);
-      expect(component.userMenuItems[0].label).toBe('Light mode');
-      expect(component.userMenuItems[0].icon).toBe('pi pi-sun');
+      expect(component.userMenuItems[1].label).toBe('Light mode');
+      expect(component.userMenuItems[1].icon).toBe('pi pi-sun');
     });
 
     it('should call setTheme with "dark" when toggleTheme() is called from light mode', () => {
@@ -90,10 +90,11 @@ describe('Navbar Component', () => {
     
     it('should call toggleTheme when clicking the theme item in the menu', () => {
       const toggleSpy = vi.spyOn(component, 'toggleTheme');
-      const themeMenuItem = component.userMenuItems[0];
+      const themeMenuItem = component.userMenuItems[1];
       
       if (themeMenuItem.command) {
-        themeMenuItem.command({});
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        themeMenuItem.command({} as any);
       }
       
       expect(toggleSpy).toHaveBeenCalled();
@@ -110,10 +111,11 @@ describe('Navbar Component', () => {
     
     it('should call logout when clicking the logout item in the menu', () => {
       const logoutSpy = vi.spyOn(component, 'logout');
-      const logoutMenuItem = component.userMenuItems[2]; 
+      const logoutMenuItem = component.userMenuItems[3]; 
       
       if (logoutMenuItem.command) {
-        logoutMenuItem.command({});
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        logoutMenuItem.command({} as any);
       }
       
       expect(logoutSpy).toHaveBeenCalled();
