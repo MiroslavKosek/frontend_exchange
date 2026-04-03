@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ExchangeRateItem, ExchangeService } from '../../services/exchange-service';
 import { ThemeService } from '../../services/theme-service';
 
+import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -16,12 +19,14 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { TranslationService } from '../../services/translation-service';
 
 @Component({
   selector: 'app-history',
   standalone: true,
   imports: [
     CommonModule,
+    TranslatePipe,
     FormsModule,
     TableModule,
     ChartModule,
@@ -40,9 +45,17 @@ import { InputIconModule } from 'primeng/inputicon';
   styleUrl: './history.css',
 })
 export class History implements OnInit {
+  private readonly storageKeys = {
+    baseCurrency: 'history.baseCurrency',
+    selectedTargets: 'history.selectedTargets',
+    dateRange: 'history.dateRange'
+  };
+
+  private translate = inject(TranslateService);
   private exchangeService = inject(ExchangeService);
   private themeService = inject(ThemeService);
   private platformId = inject(PLATFORM_ID);
+  translationService = inject(TranslationService);
 
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
@@ -81,13 +94,33 @@ export class History implements OnInit {
         this.initChartOptions();
       }
     });
+
+    effect(() => {
+      this.translationService.currentLang();
+
+      if (this.averagesData().length > 0) {
+        this.processChartData(this.averagesData());
+        this.initChartOptions();
+      }
+    });
+
+    effect(() => {
+      this.baseCurrency();
+      this.selectedTargets();
+      this.dateRange();
+      this.persistHistoryState();
+    });
   }
 
   ngOnInit() {
-    const today = new Date();
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(today.getDate() - 30);
-    this.dateRange.set([thirtyDaysAgo, today]);
+    this.restoreHistoryState();
+
+    if (this.dateRange().length !== 2) {
+      const today = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+      this.dateRange.set([thirtyDaysAgo, today]);
+    }
 
     this.initChartOptions();
     
@@ -99,7 +132,7 @@ export class History implements OnInit {
       },
       error: (err) => {
         console.error('Error fetching currencies:', err);
-        this.error.set('Failed to load available currencies.');
+        this.error.set(this.translate.instant(_('Failed to load available currencies.')));
         this.isLoading.set(false);
       }
     });
@@ -108,13 +141,13 @@ export class History implements OnInit {
   fetchHistory() {
     const dates = this.dateRange();
     if (!dates || dates.length !== 2 || !dates[0] || !dates[1]) {
-      this.error.set('Please select a valid date range (From - To).');
+      this.error.set(this.translate.instant(_('Please select a valid date range (From - To).')));
       return;
     }
 
     const targets = this.selectedTargets();
     if (!targets || targets.length === 0) {
-        this.error.set('Please select at least one target currency for averaging.');
+        this.error.set(this.translate.instant(_('Please select at least one target currency for averaging.')));
         return;
     }
 
@@ -124,11 +157,12 @@ export class History implements OnInit {
     const startDateStr = this.formatDate(dates[0]);
     const endDateStr = this.formatDate(dates[1]);
     const base = this.baseCurrency();
+    this.persistHistoryState();
 
     this.exchangeService.getHistoricalRates(startDateStr, endDateStr, base, targets).subscribe({
       next: (response) => {
         if (!response.averages || response.averages.length === 0) {
-          this.error.set('No data available for the selected period.');
+          this.error.set(this.translate.instant(_('No data available for the selected period.')));
           this.chartData = null;
           this.averagesData.set([]);
           this.periodInfo.set(null);
@@ -145,10 +179,19 @@ export class History implements OnInit {
       },
       error: (err) => {
         console.error('Error while fetching averages:', err);
-        this.error.set('Failed to download analytical data. Please check your connection and parameters.');
+        this.error.set(this.translate.instant(_('Failed to download analytical data. Please check your connection and parameters.')));
         this.isLoading.set(false);
       }
     });
+  }
+
+  getDateFormatForLocale(): string {
+    const locale = this.translate.getCurrentLang();
+    const dateFormats: Record<string, string> = {
+      'en': 'yy/mm/dd',
+      'cs': 'd. m. yy'
+    };
+    return dateFormats[locale] || 'mm/dd/yy';
   }
 
   private processChartData(averages: ExchangeRateItem[]) {
@@ -156,7 +199,7 @@ export class History implements OnInit {
       labels: averages.map(a => a.currency),
       datasets: [
         {
-          label: `Average rate against ${this.baseCurrency()}`,
+          label: this.translate.instant(_('Average rate against {{ baseCurrency }}'), { baseCurrency: this.baseCurrency() }),
           data: averages.map(a => a.rate),
           backgroundColor: averages.map((_, i) => this.getColorForIndex(i, 0.6)),
           borderColor: averages.map((_, i) => this.getColorForIndex(i, 1)),
@@ -181,7 +224,7 @@ export class History implements OnInit {
           tooltip: {
             callbacks: {
               label: (context: { parsed: { y: number }; dataset: { label: string } }) =>
-                `${context.dataset.label}: ${context.parsed.y.toLocaleString('en-US')}`
+                `${context.dataset.label}: ${context.parsed.y.toLocaleString(this.translate.getCurrentLang())}`
             }
           }
         },
@@ -191,7 +234,7 @@ export class History implements OnInit {
             grid: { color: surfaceBorder, drawBorder: false }
           },
           y: {
-            ticks: { color: textColorSecondary, callback: (value: number) => value.toLocaleString('en-US') },
+            ticks: { color: textColorSecondary, callback: (value: number) => value.toLocaleString(this.translate.getCurrentLang()) },
             grid: { color: surfaceBorder, drawBorder: false }
           }
         }
@@ -222,5 +265,80 @@ export class History implements OnInit {
       `rgba(234, 179, 8, ${alpha})`
     ];
     return colors[index % colors.length];
+  }
+
+  private restoreHistoryState() {
+    if (!this.isBrowser()) {
+      return;
+    }
+
+    const storedBaseCurrency = localStorage.getItem(this.storageKeys.baseCurrency);
+    if (storedBaseCurrency) {
+      this.baseCurrency.set(storedBaseCurrency);
+    }
+
+    const storedTargets = this.parseStoredArray(localStorage.getItem(this.storageKeys.selectedTargets));
+    if (storedTargets.length > 0) {
+      this.selectedTargets.set(storedTargets);
+    }
+
+    const storedDateRange = this.parseStoredDateRange(localStorage.getItem(this.storageKeys.dateRange));
+    if (storedDateRange.length === 2) {
+      this.dateRange.set(storedDateRange);
+    }
+  }
+
+  private persistHistoryState() {
+    if (!this.isBrowser()) {
+      return;
+    }
+
+    localStorage.setItem(this.storageKeys.baseCurrency, this.baseCurrency());
+    localStorage.setItem(this.storageKeys.selectedTargets, JSON.stringify(this.selectedTargets()));
+
+    const dates = this.dateRange();
+    if (dates.length === 2 && dates[0] instanceof Date && dates[1] instanceof Date) {
+      localStorage.setItem(
+        this.storageKeys.dateRange,
+        JSON.stringify([this.formatDate(dates[0]), this.formatDate(dates[1])])
+      );
+    }
+  }
+
+  private parseStoredArray(value: string | null): string[] {
+    if (!value) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(value);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed.filter((item): item is string => typeof item === 'string');
+    } catch {
+      return [];
+    }
+  }
+
+  private parseStoredDateRange(value: string | null): Date[] {
+    const parsedDates = this.parseStoredArray(value);
+    if (parsedDates.length !== 2) {
+      return [];
+    }
+
+    const start = new Date(`${parsedDates[0]}T00:00:00`);
+    const end = new Date(`${parsedDates[1]}T00:00:00`);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return [];
+    }
+
+    return [start, end];
+  }
+
+  private isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
   }
 }

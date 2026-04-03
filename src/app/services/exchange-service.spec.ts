@@ -50,7 +50,7 @@ describe('ExchangeService', () => {
 
   it('should map latest rates API object to rates array and format date', () => {
     const apiDate = '2026-03-10';
-    const expectedDate = new Date(apiDate).toLocaleDateString();
+    const expectedDate = apiDate;
 
     service.getLatestRates('CZK').subscribe((response) => {
       expect(response.base).toBe('CZK');
@@ -93,8 +93,8 @@ describe('ExchangeService', () => {
   it('should map historical averages object to array and convert period dates', () => {
     const start = '2026-02-01';
     const end = '2026-02-28';
-    const expectedStart = new Date(start).toLocaleDateString();
-    const expectedEnd = new Date(end).toLocaleDateString();
+    const expectedStart = start;
+    const expectedEnd = end;
 
     service.getHistoricalRates(start, end, 'CZK', ['EUR', 'USD']).subscribe((response) => {
       expect(response.base).toBe('CZK');

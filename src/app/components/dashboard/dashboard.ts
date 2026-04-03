@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ExchangeService, ExchangeRateItem } from '../../services/exchange-service';
 import { ThemeService } from '../../services/theme-service';
 
+import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { Table, TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -14,12 +17,14 @@ import { InputIconModule } from 'primeng/inputicon';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
 import { forkJoin } from 'rxjs';
+import { TranslationService } from '../../services/translation-service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule, 
+    TranslatePipe,
     FormsModule, 
     TableModule, 
     ChartModule, 
@@ -35,9 +40,16 @@ import { forkJoin } from 'rxjs';
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
+  private readonly storageKeys = {
+    baseCurrency: 'dashboard.baseCurrency',
+    selectedCurrencies: 'dashboard.selectedCurrencies'
+  };
+
+  private translate = inject(TranslateService);
   private exchangeService = inject(ExchangeService);
   private themeService = inject(ThemeService);
   private platformId = inject(PLATFORM_ID);
+  translationService = inject(TranslationService);
 
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
@@ -75,18 +87,34 @@ export class Dashboard implements OnInit {
     effect(() => {
       this.updateChartData(this.selectedCurrencies());
     });
+
+    effect(() => {
+      this.translationService.currentLang();
+
+      if (this.allRates().length > 0) {
+        this.updateChartData(this.selectedCurrencies());
+        this.initChartOptions();
+      }
+    });
+
+    effect(() => {
+      this.selectedCurrencies();
+      this.persistDashboardState();
+    });
   }
 
   ngOnInit() {
+    this.restoreDashboardState();
+
     this.isLoading.set(true);
     this.exchangeService.getAvailableCurrencies().subscribe({
       next: (currencies) => {
         this.availableCurrencies.set(currencies);
-        this.fetchData();
+        this.fetchData(this.baseCurrency());
       },
       error: (err) => {
         console.error('Error fetching currencies:', err);
-        this.error.set('Failed to load available currencies.');
+        this.error.set(this.translate.instant(_('Failed to load available currencies.')));
         this.isLoading.set(false);
       }
     });
@@ -103,12 +131,15 @@ export class Dashboard implements OnInit {
       next: (results) => {
         const data = results.ratesData;
         const extremes = results.extremesData;
+        const storedSelection = this.getStoredSelectedCurrencies();
 
         this.baseCurrency.set(data.base);
         this.date.set(data.date);
         this.allRates.set(data.rates);
         
-        const initialSelection = data.rates.slice(0, 10);
+        const initialSelection = storedSelection.length > 0
+          ? data.rates.filter((rate) => storedSelection.includes(rate.currency))
+          : data.rates.slice(0, 10);
         this.selectedCurrencies.set(initialSelection);
         
         this.strongestCurrency.set(extremes.strongest);
@@ -116,18 +147,21 @@ export class Dashboard implements OnInit {
 
         this.initChartOptions();
         this.updateChartData(initialSelection);
+        this.persistDashboardState();
         
         this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error fetching dashboard data:', err);
-        this.error.set('Failed to load dashboard data. Please try again later.');
+        this.error.set(this.translate.instant(_('Failed to load dashboard data. Please try again later.')));
         this.isLoading.set(false);
       }
     });
   }
 
   onBaseCurrencyChange(newBase: string) {
+    this.baseCurrency.set(newBase);
+    this.persistDashboardState();
      this.fetchData(newBase);
   }
 
@@ -141,7 +175,7 @@ export class Dashboard implements OnInit {
       labels: selectedRates.map(r => r.currency),
       datasets: [
         {
-          label: `Rate against ${this.baseCurrency()}`,
+          label: this.translate.instant(_('Rate against {{ baseCurrency }}'), { baseCurrency: this.baseCurrency() }),
           data: selectedRates.map(r => r.rate),
           backgroundColor: 'rgba(6, 182, 212, 0.5)',
           borderColor: 'rgb(6, 182, 212)',
@@ -170,7 +204,7 @@ export class Dashboard implements OnInit {
           tooltip: {
             callbacks: {
               label: (context: { parsed: { y: number }; dataset: { label: string } }) =>
-                `${context.dataset.label}: ${context.parsed.y.toLocaleString('en-US')}`
+                `${context.dataset.label}: ${context.parsed.y.toLocaleString(this.translate.getCurrentLang())}`
             }
           }
         },
@@ -190,7 +224,7 @@ export class Dashboard implements OnInit {
           y: {
             ticks: {
               color: textColorSecondary,
-              callback: (value: number) => value.toLocaleString('en-US')
+              callback: (value: number) => value.toLocaleString(this.translate.getCurrentLang())
             },
             grid: {
               color: surfaceBorder,
@@ -204,5 +238,54 @@ export class Dashboard implements OnInit {
 
   clearGlobalFilter(table: Table) {
     table.clear();
+  }
+
+  private restoreDashboardState() {
+    if (!this.isBrowser()) {
+      return;
+    }
+
+    const storedBaseCurrency = localStorage.getItem(this.storageKeys.baseCurrency);
+    if (storedBaseCurrency) {
+      this.baseCurrency.set(storedBaseCurrency);
+    }
+  }
+
+  private persistDashboardState() {
+    if (!this.isBrowser()) {
+      return;
+    }
+
+    localStorage.setItem(this.storageKeys.baseCurrency, this.baseCurrency());
+    localStorage.setItem(
+      this.storageKeys.selectedCurrencies,
+      JSON.stringify(this.selectedCurrencies().map((rate) => rate.currency))
+    );
+  }
+
+  private getStoredSelectedCurrencies(): string[] {
+    if (!this.isBrowser()) {
+      return [];
+    }
+
+    const raw = localStorage.getItem(this.storageKeys.selectedCurrencies);
+    if (!raw) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed.filter((item): item is string => typeof item === 'string');
+    } catch {
+      return [];
+    }
+  }
+
+  private isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
   }
 }

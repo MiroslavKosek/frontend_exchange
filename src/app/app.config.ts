@@ -1,12 +1,22 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import { providePrimeNG } from 'primeng/config';
 
+import { registerLocaleData } from '@angular/common';
+import localeCs from '@angular/common/locales/cs';
+import {
+  provideTranslateService,
+  MissingTranslationHandler,
+} from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { CustomMissingTranslationHandler } from './handlers/missing-translation.handler';
+
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './interceptors/auth-interceptor';
+import { TranslationService } from './services/translation-service';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -60,6 +70,8 @@ const MyPreset = definePreset(Aura, {
   },
 });
 
+registerLocaleData(localeCs);
+
 export const appConfig: ApplicationConfig = {
   providers: [
     providePrimeNG({
@@ -75,6 +87,21 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({
+        prefix: '/i18n/',
+        suffix: '.json',
+      }),
+      missingTranslationHandler: {
+        provide: MissingTranslationHandler,
+        useClass: CustomMissingTranslationHandler,
+      },
+    }),
+    {
+      provide: LOCALE_ID,
+      deps: [TranslationService],
+      useFactory: (translationService: TranslationService) => translationService.getAngularLocale()
+    },
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor]))

@@ -4,6 +4,9 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
 
+import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -16,6 +19,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
   selector: 'app-login',
   imports: [
     ReactiveFormsModule,
+    TranslatePipe,
     CardModule,
     InputTextModule,
     PasswordModule,
@@ -28,6 +32,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
   styleUrl: './login.css',
 })
 export class Login {
+  private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -60,7 +65,7 @@ export class Login {
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.messages.set([{ severity: 'error', content: 'Invalid username or password.', closable: false }]);
+          this.messages.set([{ severity: 'error', content: this.translate.instant(_('Invalid username or password.')), closable: false }]);
           console.error('Login error', err);
         }
       });

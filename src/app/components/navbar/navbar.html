@@ -2,7 +2,7 @@
     <ng-template #start>
         <div class="flex items-center gap-2 pr-4">
             <i class="pi pi-chart-line text-primary text-2xl"></i>
-            <span class="font-bold text-xl text-primary">Exchange App</span>
+            <span class="font-bold text-xl text-primary">{{ 'Exchange App' | translate }}</span>
         </div>
     </ng-template>
     <ng-template #end>
@@ -11,7 +11,7 @@
                 icon="pi pi-user" 
                 variant="text" 
                 (onClick)="userMenu.toggle($event)" />
-            <p-menu #userMenu [model]="userMenuItems" [popup]="true" />
+            <p-tieredmenu #userMenu [model]="userMenuItems" [popup]="true" />
         </div>
     </ng-template>
 </p-menubar>
