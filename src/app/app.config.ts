@@ -72,6 +72,11 @@ const MyPreset = definePreset(Aura, {
 
 registerLocaleData(localeCs);
 
+function getPrefix(): string {
+  const basePath = window.location.pathname.split('/')[1] || '';
+  return basePath ? `/${basePath}/i18n/` : '/i18n/';
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     providePrimeNG({
@@ -89,7 +94,7 @@ export const appConfig: ApplicationConfig = {
     }),
     provideTranslateService({
       loader: provideTranslateHttpLoader({
-        prefix: '/i18n/',
+        prefix: getPrefix(),
         suffix: '.json',
       }),
       missingTranslationHandler: {
