@@ -16,7 +16,7 @@ msgstr "Průměrné kurzy ve vybraném období"
 msgid "Average Values"
 msgstr "Průměrné hotnoty"
 
-#: src/app/components/history/history.ts:184
+#: src/app/components/history/history.ts:202
 msgid "Average rate against {{ baseCurrency }}"
 msgstr "Průměrný kurz vůči {{ baseCurrency }}"
 
@@ -66,7 +66,7 @@ msgstr "Angličtina"
 msgid "Exchange App"
 msgstr "Exchange App"
 
-#: src/app/components/history/history.ts:164
+#: src/app/components/history/history.ts:182
 msgid ""
 "Failed to download analytical data. Please check your connection and "
 "parameters."
@@ -74,12 +74,12 @@ msgstr ""
 "Stáhnutí analytických dat se nezdařilo. Zkontrolujte prosím připojení a "
 "parametry."
 
-#: src/app/components/dashboard/dashboard.ts:105
-#: src/app/components/history/history.ts:118
+#: src/app/components/dashboard/dashboard.ts:117
+#: src/app/components/history/history.ts:135
 msgid "Failed to load available currencies."
 msgstr "Načtení dostupných měn se nezdařilo."
 
-#: src/app/components/dashboard/dashboard.ts:140
+#: src/app/components/dashboard/dashboard.ts:156
 msgid "Failed to load dashboard data. Please try again later."
 msgstr "Načtení dat z řídicího panelu se nezdařilo. Zkuste to prosím později."
 
@@ -117,7 +117,7 @@ msgstr "Přihlásit se do Exchange App"
 msgid "Logout"
 msgstr "Odhlásit se"
 
-#: src/app/components/history/history.ts:147
+#: src/app/components/history/history.ts:165
 msgid "No data available for the selected period."
 msgstr "Pro vybrané období nejsou k dispozici žádná data."
 
@@ -137,11 +137,11 @@ msgstr "Období (Od – Do)"
 msgid "Period:"
 msgstr "Období:"
 
-#: src/app/components/history/history.ts:127
+#: src/app/components/history/history.ts:144
 msgid "Please select a valid date range (From - To)."
 msgstr "Zvolte prosím platný rozsah dat (Od - Do)."
 
-#: src/app/components/history/history.ts:133
+#: src/app/components/history/history.ts:150
 msgid "Please select at least one target currency for averaging."
 msgstr "Zvolte prosím alespoň jednu cílovou měnu pro výpočet průměru."
 
@@ -149,7 +149,7 @@ msgstr "Zvolte prosím alespoň jednu cílovou měnu pro výpočet průměru."
 msgid "Rate Table"
 msgstr "Tabulka kurzů"
 
-#: src/app/components/dashboard/dashboard.ts:160
+#: src/app/components/dashboard/dashboard.ts:178
 msgid "Rate against {{ baseCurrency }}"
 msgstr "Kurz vůči {{ baseCurrency }}"
 

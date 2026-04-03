@@ -16,7 +16,7 @@ msgstr "Average Rates in the Selected Period"
 msgid "Average Values"
 msgstr "Average Values"
 
-#: src/app/components/history/history.ts:184
+#: src/app/components/history/history.ts:202
 msgid "Average rate against {{ baseCurrency }}"
 msgstr "Average rate against {{ baseCurrency }}"
 
@@ -66,7 +66,7 @@ msgstr "English"
 msgid "Exchange App"
 msgstr "Exchange App"
 
-#: src/app/components/history/history.ts:164
+#: src/app/components/history/history.ts:182
 msgid ""
 "Failed to download analytical data. Please check your connection and "
 "parameters."
@@ -74,12 +74,12 @@ msgstr ""
 "Failed to download analytical data. Please check your connection and "
 "parameters."
 
-#: src/app/components/dashboard/dashboard.ts:105
-#: src/app/components/history/history.ts:118
+#: src/app/components/dashboard/dashboard.ts:117
+#: src/app/components/history/history.ts:135
 msgid "Failed to load available currencies."
 msgstr "Failed to load available currencies."
 
-#: src/app/components/dashboard/dashboard.ts:140
+#: src/app/components/dashboard/dashboard.ts:156
 msgid "Failed to load dashboard data. Please try again later."
 msgstr "Failed to load dashboard data. Please try again later."
 
@@ -117,7 +117,7 @@ msgstr "Login to Exchange App"
 msgid "Logout"
 msgstr "Logout"
 
-#: src/app/components/history/history.ts:147
+#: src/app/components/history/history.ts:165
 msgid "No data available for the selected period."
 msgstr "No data available for the selected period."
 
@@ -137,11 +137,11 @@ msgstr "Period (From - To)"
 msgid "Period:"
 msgstr "Period:"
 
-#: src/app/components/history/history.ts:127
+#: src/app/components/history/history.ts:144
 msgid "Please select a valid date range (From - To)."
 msgstr "Please select a valid date range (From - To)."
 
-#: src/app/components/history/history.ts:133
+#: src/app/components/history/history.ts:150
 msgid "Please select at least one target currency for averaging."
 msgstr "Please select at least one target currency for averaging."
 
@@ -149,7 +149,7 @@ msgstr "Please select at least one target currency for averaging."
 msgid "Rate Table"
 msgstr "Rate Table"
 
-#: src/app/components/dashboard/dashboard.ts:160
+#: src/app/components/dashboard/dashboard.ts:178
 msgid "Rate against {{ baseCurrency }}"
 msgstr "Rate against {{ baseCurrency }}"
 

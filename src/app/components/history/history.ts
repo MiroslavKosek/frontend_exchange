@@ -45,6 +45,12 @@ import { TranslationService } from '../../services/translation-service';
   styleUrl: './history.css',
 })
 export class History implements OnInit {
+  private readonly storageKeys = {
+    baseCurrency: 'history.baseCurrency',
+    selectedTargets: 'history.selectedTargets',
+    dateRange: 'history.dateRange'
+  };
+
   private translate = inject(TranslateService);
   private exchangeService = inject(ExchangeService);
   private themeService = inject(ThemeService);
@@ -97,13 +103,24 @@ export class History implements OnInit {
         this.initChartOptions();
       }
     });
+
+    effect(() => {
+      this.baseCurrency();
+      this.selectedTargets();
+      this.dateRange();
+      this.persistHistoryState();
+    });
   }
 
   ngOnInit() {
-    const today = new Date();
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(today.getDate() - 30);
-    this.dateRange.set([thirtyDaysAgo, today]);
+    this.restoreHistoryState();
+
+    if (this.dateRange().length !== 2) {
+      const today = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+      this.dateRange.set([thirtyDaysAgo, today]);
+    }
 
     this.initChartOptions();
     
@@ -140,6 +157,7 @@ export class History implements OnInit {
     const startDateStr = this.formatDate(dates[0]);
     const endDateStr = this.formatDate(dates[1]);
     const base = this.baseCurrency();
+    this.persistHistoryState();
 
     this.exchangeService.getHistoricalRates(startDateStr, endDateStr, base, targets).subscribe({
       next: (response) => {
@@ -247,5 +265,80 @@ export class History implements OnInit {
       `rgba(234, 179, 8, ${alpha})`
     ];
     return colors[index % colors.length];
+  }
+
+  private restoreHistoryState() {
+    if (!this.isBrowser()) {
+      return;
+    }
+
+    const storedBaseCurrency = localStorage.getItem(this.storageKeys.baseCurrency);
+    if (storedBaseCurrency) {
+      this.baseCurrency.set(storedBaseCurrency);
+    }
+
+    const storedTargets = this.parseStoredArray(localStorage.getItem(this.storageKeys.selectedTargets));
+    if (storedTargets.length > 0) {
+      this.selectedTargets.set(storedTargets);
+    }
+
+    const storedDateRange = this.parseStoredDateRange(localStorage.getItem(this.storageKeys.dateRange));
+    if (storedDateRange.length === 2) {
+      this.dateRange.set(storedDateRange);
+    }
+  }
+
+  private persistHistoryState() {
+    if (!this.isBrowser()) {
+      return;
+    }
+
+    localStorage.setItem(this.storageKeys.baseCurrency, this.baseCurrency());
+    localStorage.setItem(this.storageKeys.selectedTargets, JSON.stringify(this.selectedTargets()));
+
+    const dates = this.dateRange();
+    if (dates.length === 2 && dates[0] instanceof Date && dates[1] instanceof Date) {
+      localStorage.setItem(
+        this.storageKeys.dateRange,
+        JSON.stringify([this.formatDate(dates[0]), this.formatDate(dates[1])])
+      );
+    }
+  }
+
+  private parseStoredArray(value: string | null): string[] {
+    if (!value) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(value);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed.filter((item): item is string => typeof item === 'string');
+    } catch {
+      return [];
+    }
+  }
+
+  private parseStoredDateRange(value: string | null): Date[] {
+    const parsedDates = this.parseStoredArray(value);
+    if (parsedDates.length !== 2) {
+      return [];
+    }
+
+    const start = new Date(`${parsedDates[0]}T00:00:00`);
+    const end = new Date(`${parsedDates[1]}T00:00:00`);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return [];
+    }
+
+    return [start, end];
+  }
+
+  private isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
   }
 }

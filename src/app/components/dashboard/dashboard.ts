@@ -40,6 +40,11 @@ import { TranslationService } from '../../services/translation-service';
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
+  private readonly storageKeys = {
+    baseCurrency: 'dashboard.baseCurrency',
+    selectedCurrencies: 'dashboard.selectedCurrencies'
+  };
+
   private translate = inject(TranslateService);
   private exchangeService = inject(ExchangeService);
   private themeService = inject(ThemeService);
@@ -91,14 +96,21 @@ export class Dashboard implements OnInit {
         this.initChartOptions();
       }
     });
+
+    effect(() => {
+      this.selectedCurrencies();
+      this.persistDashboardState();
+    });
   }
 
   ngOnInit() {
+    this.restoreDashboardState();
+
     this.isLoading.set(true);
     this.exchangeService.getAvailableCurrencies().subscribe({
       next: (currencies) => {
         this.availableCurrencies.set(currencies);
-        this.fetchData();
+        this.fetchData(this.baseCurrency());
       },
       error: (err) => {
         console.error('Error fetching currencies:', err);
@@ -119,12 +131,15 @@ export class Dashboard implements OnInit {
       next: (results) => {
         const data = results.ratesData;
         const extremes = results.extremesData;
+        const storedSelection = this.getStoredSelectedCurrencies();
 
         this.baseCurrency.set(data.base);
         this.date.set(data.date);
         this.allRates.set(data.rates);
         
-        const initialSelection = data.rates.slice(0, 10);
+        const initialSelection = storedSelection.length > 0
+          ? data.rates.filter((rate) => storedSelection.includes(rate.currency))
+          : data.rates.slice(0, 10);
         this.selectedCurrencies.set(initialSelection);
         
         this.strongestCurrency.set(extremes.strongest);
@@ -132,6 +147,7 @@ export class Dashboard implements OnInit {
 
         this.initChartOptions();
         this.updateChartData(initialSelection);
+        this.persistDashboardState();
         
         this.isLoading.set(false);
       },
@@ -144,6 +160,8 @@ export class Dashboard implements OnInit {
   }
 
   onBaseCurrencyChange(newBase: string) {
+    this.baseCurrency.set(newBase);
+    this.persistDashboardState();
      this.fetchData(newBase);
   }
 
@@ -220,5 +238,54 @@ export class Dashboard implements OnInit {
 
   clearGlobalFilter(table: Table) {
     table.clear();
+  }
+
+  private restoreDashboardState() {
+    if (!this.isBrowser()) {
+      return;
+    }
+
+    const storedBaseCurrency = localStorage.getItem(this.storageKeys.baseCurrency);
+    if (storedBaseCurrency) {
+      this.baseCurrency.set(storedBaseCurrency);
+    }
+  }
+
+  private persistDashboardState() {
+    if (!this.isBrowser()) {
+      return;
+    }
+
+    localStorage.setItem(this.storageKeys.baseCurrency, this.baseCurrency());
+    localStorage.setItem(
+      this.storageKeys.selectedCurrencies,
+      JSON.stringify(this.selectedCurrencies().map((rate) => rate.currency))
+    );
+  }
+
+  private getStoredSelectedCurrencies(): string[] {
+    if (!this.isBrowser()) {
+      return [];
+    }
+
+    const raw = localStorage.getItem(this.storageKeys.selectedCurrencies);
+    if (!raw) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed.filter((item): item is string => typeof item === 'string');
+    } catch {
+      return [];
+    }
+  }
+
+  private isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
   }
 }
