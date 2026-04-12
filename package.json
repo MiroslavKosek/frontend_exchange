@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "eslint \"src/**/*.{ts,html}\"",
+    "lint": "eslint \"src/**/*.{ts,html}\" --no-fix --max-warnings 0",
     "extract": "ngx-translate-extract --input ./src --output ./public/i18n/{en,cs}.json --clean --sort --format json --marker _, TRANSLATE, translate",
     "pretranslate": "angular-gettext-cli --files \"./src/**/*.+(html|ts)\" --exclude \"**/*.spec.ts\" --dest \"./public/i18n/extract.pot\" --marker-names \"_,instant,translate\" --attribute translate",
     "translate": "msgmerge -s ./public/i18n/cs.po ./public/i18n/extract.pot -o ./public/i18n/cs.po && msgmerge -s ./public/i18n/en.po ./public/i18n/extract.pot -o ./public/i18n/en.po",
