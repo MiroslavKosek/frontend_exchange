@@ -92,4 +92,5 @@ jobs:
       - name: Vitest coverage comment
         uses: davelosert/vitest-coverage-report-action@v2
         with:
+          threshold-icons: "{0: '🔴', 50: '🟠', 80: '🟢'}"
           github-token: ${{ secrets.GITHUB_TOKEN }}
