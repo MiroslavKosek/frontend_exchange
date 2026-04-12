@@ -59,7 +59,13 @@ describe('AuthService', () => {
 
   it('should clear token on logout', () => {
     localStorage.setItem('exchange_jwt_token', 'some-token');
+
     service.logout();
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/logout`);
+    expect(req.request.method).toBe('POST');
+    req.flush({});
+
     expect(localStorage.getItem('exchange_jwt_token')).toBeNull();
   });
 

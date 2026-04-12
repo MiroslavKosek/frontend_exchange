@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { tap } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 
 interface TokenResponse {
   access_token: string;
@@ -31,7 +31,15 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem(this.tokenKey);
+    this.http.post<void>(`${this.apiUrl}/logout`, {}).pipe(
+      finalize(() => {
+        localStorage.removeItem(this.tokenKey);
+      })
+    ).subscribe({
+      error: () => {
+        // Token must be removed locally even if backend logout fails.
+      }
+    });
   }
 
   getToken(): string | null {
