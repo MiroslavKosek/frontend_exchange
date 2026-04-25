@@ -1,5 +1,6 @@
 {
 	"": "[?]",
+	"An internal server error occurred. Please try again later.": "An internal server error occurred. Please try again later",
 	"Average": "Average",
 	"Average Rates in the Selected Period": "Average Rates in the Selected Period",
 	"Average Values": "Average Values",
@@ -38,12 +39,15 @@
 	"Release Date": "Release Date",
 	"Search...": "Search...",
 	"Select currencies for chart": "Select currencies for chart",
+	"Server is unreachable. Please check your connection or try again later.": "Server is unreachable. Please check your connection or try again later.",
 	"Strongest Currency": "Strongest Currency",
 	"Target Currencies (min 1)": "Target Currencies (min 1)",
 	"Username": "Username",
 	"Username is required.": "Username is required.",
 	"Value": "Value",
 	"Weakest Currency": "Weakest Currency",
+	"least per 1": "least per 1",
+	"most per 1": "most per 1",
 	"to": "to",
 	"{0} items selected": "{0} items selected"
 }
