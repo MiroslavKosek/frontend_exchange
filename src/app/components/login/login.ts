@@ -14,6 +14,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { NGXLogger } from 'ngx-logger';
 
 @Component({
   selector: 'app-login',
@@ -36,6 +37,7 @@ export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private logger = inject(NGXLogger);
 
   loginForm = this.fb.nonNullable.group({
     username: ['', Validators.required],
@@ -52,24 +54,43 @@ export class Login {
   
   onSubmit() {
     this.formSubmitted.set(true);
+
     if (this.loginForm.valid) {
+      const { username, password } = this.loginForm.getRawValue();
+
+      this.logger.info(`Login form submitted for user: '${username}'`);
+
       this.isLoading.set(true);
       this.messages.set([]);
 
-      const { username, password } = this.loginForm.getRawValue();
-
       this.authService.login(username, password).subscribe({
         next: () => {
+          this.logger.info(`Login UI flow successful for '${username}'. Redirecting to root.`);
           this.isLoading.set(false);
           this.router.navigate(['/']); 
         },
         error: (err) => {
+          this.logger.error(`Login UI flow failed for user: '${username}'. Displaying error message.`, err);
           this.isLoading.set(false);
-          this.messages.set([{ severity: 'error', content: this.translate.instant(_('Invalid username or password.')), closable: false }]);
-          console.error('Login error', err);
+
+          let errorMessageKey: string = _('Invalid username or password.');
+          
+          if (err.status === 0) {
+            errorMessageKey = _('Server is unreachable. Please check your connection or try again later.');
+          } else if (err.status >= 500) {
+            errorMessageKey = _('An internal server error occurred. Please try again later.');
+          }
+
+          this.messages.set([{ 
+            severity: 'error', 
+            content: this.translate.instant(errorMessageKey), 
+            closable: false 
+          }]);
         }
       });
       this.formSubmitted.set(false);
+    } else {
+      this.logger.warn('Login attempt blocked: Form submitted with invalid validation state.');
     }
   }
 

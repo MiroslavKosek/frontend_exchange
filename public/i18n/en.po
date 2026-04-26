@@ -4,6 +4,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: src/app/components/login/login.ts:81
+#, fuzzy
+msgid "An internal server error occurred. Please try again later."
+msgstr "An internal server error occurred. Please try again later"
+
 #: src/app/components/history/history.html:114
 msgid "Average"
 msgstr "Average"
@@ -16,11 +21,11 @@ msgstr "Average Rates in the Selected Period"
 msgid "Average Values"
 msgstr "Average Values"
 
-#: src/app/components/history/history.ts:202
+#: src/app/components/history/history.ts:213
 msgid "Average rate against {{ baseCurrency }}"
 msgstr "Average rate against {{ baseCurrency }}"
 
-#: src/app/components/dashboard/dashboard.html:5
+#: src/app/components/dashboard/dashboard.html:6
 #: src/app/components/history/history.html:24
 msgid "Base Currency"
 msgstr "Base Currency"
@@ -29,16 +34,16 @@ msgstr "Base Currency"
 msgid "Calculate"
 msgstr "Calculate"
 
-#: src/app/components/navbar/navbar.ts:75
+#: src/app/components/navbar/navbar.ts:79
 msgid "Change language"
 msgstr "Change language"
 
-#: src/app/components/dashboard/dashboard.html:99
+#: src/app/components/dashboard/dashboard.html:115
 #: src/app/components/history/history.html:109
 msgid "Code"
 msgstr "Code"
 
-#: src/app/components/dashboard/dashboard.html:49
+#: src/app/components/dashboard/dashboard.html:64
 msgid "Comparison of Rates"
 msgstr "Comparison of Rates"
 
@@ -46,19 +51,19 @@ msgstr "Comparison of Rates"
 msgid "Current Rates"
 msgstr "Current Rates"
 
-#: src/app/components/navbar/navbar.ts:84
+#: src/app/components/navbar/navbar.ts:88
 msgid "Czech"
 msgstr "Czech"
 
-#: src/app/components/navbar/navbar.ts:91
+#: src/app/components/navbar/navbar.ts:95
 msgid "Dark mode"
 msgstr "Dark mode"
 
-#: src/app/components/navbar/navbar.ts:60
+#: src/app/components/navbar/navbar.ts:64
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: src/app/components/navbar/navbar.ts:79
+#: src/app/components/navbar/navbar.ts:83
 msgid "English"
 msgstr "English"
 
@@ -66,7 +71,7 @@ msgstr "English"
 msgid "Exchange App"
 msgstr "Exchange App"
 
-#: src/app/components/history/history.ts:182
+#: src/app/components/history/history.ts:192
 msgid ""
 "Failed to download analytical data. Please check your connection and "
 "parameters."
@@ -74,16 +79,16 @@ msgstr ""
 "Failed to download analytical data. Please check your connection and "
 "parameters."
 
-#: src/app/components/dashboard/dashboard.ts:117
-#: src/app/components/history/history.ts:135
+#: src/app/components/dashboard/dashboard.ts:125
+#: src/app/components/history/history.ts:139
 msgid "Failed to load available currencies."
 msgstr "Failed to load available currencies."
 
-#: src/app/components/dashboard/dashboard.ts:156
+#: src/app/components/dashboard/dashboard.ts:168
 msgid "Failed to load dashboard data. Please try again later."
 msgstr "Failed to load dashboard data. Please try again later."
 
-#: src/app/components/navbar/navbar.ts:65
+#: src/app/components/navbar/navbar.ts:69
 msgid "History"
 msgstr "History"
 
@@ -91,15 +96,15 @@ msgstr "History"
 msgid "History of Exchange Rates"
 msgstr "History of Exchange Rates"
 
-#: src/app/components/login/login.ts:68
+#: src/app/components/login/login.ts:76
 msgid "Invalid username or password."
 msgstr "Invalid username or password."
 
-#: src/app/components/navbar/navbar.ts:91
+#: src/app/components/navbar/navbar.ts:95
 msgid "Light mode"
 msgstr "Light mode"
 
-#: src/app/components/dashboard/dashboard.html:37
+#: src/app/components/dashboard/dashboard.html:52
 #: src/app/components/history/history.html:62
 msgid "Loading..."
 msgstr "Loading..."
@@ -113,11 +118,11 @@ msgstr "Login"
 msgid "Login to Exchange App"
 msgstr "Login to Exchange App"
 
-#: src/app/components/navbar/navbar.ts:99
+#: src/app/components/navbar/navbar.ts:103
 msgid "Logout"
 msgstr "Logout"
 
-#: src/app/components/history/history.ts:165
+#: src/app/components/history/history.ts:174
 msgid "No data available for the selected period."
 msgstr "No data available for the selected period."
 
@@ -137,39 +142,46 @@ msgstr "Period (From - To)"
 msgid "Period:"
 msgstr "Period:"
 
-#: src/app/components/history/history.ts:144
+#: src/app/components/history/history.ts:149
 msgid "Please select a valid date range (From - To)."
 msgstr "Please select a valid date range (From - To)."
 
-#: src/app/components/history/history.ts:150
+#: src/app/components/history/history.ts:156
 msgid "Please select at least one target currency for averaging."
 msgstr "Please select at least one target currency for averaging."
 
-#: src/app/components/dashboard/dashboard.html:79
+#: src/app/components/dashboard/dashboard.html:95
 msgid "Rate Table"
 msgstr "Rate Table"
 
-#: src/app/components/dashboard/dashboard.ts:178
+#: src/app/components/dashboard/dashboard.ts:206
 msgid "Rate against {{ baseCurrency }}"
 msgstr "Rate against {{ baseCurrency }}"
 
-#: src/app/components/dashboard/dashboard.html:15
+#: src/app/components/dashboard/dashboard.html:30
 msgid "Release Date"
 msgstr "Release Date"
 
-#: src/app/components/dashboard/dashboard.html:88
+#: src/app/components/dashboard/dashboard.html:104
 #: src/app/components/history/history.html:99
 msgid "Search..."
 msgstr "Search..."
 
-#: src/app/components/dashboard/dashboard.html:55
+#: src/app/components/dashboard/dashboard.html:71
 msgid "Select currencies for chart"
 msgstr "Select currencies for chart"
 
-#: src/app/components/dashboard/dashboard.html:20
+#: src/app/components/login/login.ts:79
+#, fuzzy
+msgid "Server is unreachable. Please check your connection or try again later."
+msgstr ""
+"Server is unreachable. Please check your connection or try again later."
+
+#: src/app/components/dashboard/dashboard.html:35
 msgid "Strongest Currency"
 msgstr "Strongest Currency"
 
+#: src/app/components/dashboard/dashboard.html:17
 #: src/app/components/history/history.html:33
 msgid "Target Currencies (min 1)"
 msgstr "Target Currencies (min 1)"
@@ -182,19 +194,28 @@ msgstr "Username"
 msgid "Username is required."
 msgstr "Username is required."
 
-#: src/app/components/dashboard/dashboard.html:104
+#: src/app/components/dashboard/dashboard.html:120
 msgid "Value"
 msgstr "Value"
 
-#: src/app/components/dashboard/dashboard.html:27
+#: src/app/components/dashboard/dashboard.html:42
 msgid "Weakest Currency"
 msgstr "Weakest Currency"
+
+#: src/app/components/dashboard/dashboard.html:35
+msgid "least per 1"
+msgstr "least per 1"
+
+#: src/app/components/dashboard/dashboard.html:42
+msgid "most per 1"
+msgstr "most per 1"
 
 #: src/app/components/history/history.html:5
 msgid "to"
 msgstr "to"
 
-#: src/app/components/dashboard/dashboard.html:60
+#: src/app/components/dashboard/dashboard.html:24
+#: src/app/components/dashboard/dashboard.html:76
 #: src/app/components/history/history.html:39
 msgid "{0} items selected"
 msgstr "{0} items selected"

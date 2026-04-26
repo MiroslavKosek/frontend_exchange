@@ -82,8 +82,6 @@ describe('Login', () => {
     });
 
     it('should catch the error from the API, display a message, and not redirect', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {/* no-op to suppress error logs during testing */});
-      
       mockAuthService.login.mockReturnValue(throwError(() => new Error('Auth failed')));
       
       component.loginForm.setValue({ username: 'admin', password: 'wrong-password' });
@@ -95,7 +93,6 @@ describe('Login', () => {
 
       expect(component.messages()).toEqual([{ severity: 'error', content: 'Invalid username or password.', closable: false }]);
       expect(mockRouter.navigate).not.toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalled();
       expect(component.formSubmitted()).toBe(false);
     });
   });

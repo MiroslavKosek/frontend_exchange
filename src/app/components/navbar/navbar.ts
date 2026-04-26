@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { TieredMenuModule } from 'primeng/tieredmenu';
 import { Subscription } from 'rxjs';
 import { TranslationService } from '../../services/translation-service';
+import { NGXLogger } from 'ngx-logger';
 
 @Component({
   selector: 'app-navbar',
@@ -30,6 +31,7 @@ export class Navbar implements OnInit, OnDestroy {
   private router = inject(Router);
   private themeService = inject(ThemeService);
   private translationService = inject(TranslationService);
+  private logger = inject(NGXLogger);
 
   selectedLang = 'en';
 
@@ -41,16 +43,18 @@ export class Navbar implements OnInit, OnDestroy {
   themeSubscription!: Subscription;
 
   ngOnInit() {
+    this.logger.trace('Navbar component initialized.');
+
     this.username.set(this.authService.getUsernameFromToken());
     this.selectedLang = this.translationService.currentLang();
 
     this.themeSubscription = this.themeService.theme$.subscribe(theme => {
-        this.isDarkMode.set(theme === 'dark');
-        this.updateMenu();
+      this.logger.debug(`Navbar observed theme change to: '${theme}'. Updating UI state.`);
+      this.isDarkMode.set(theme === 'dark');
+      this.updateMenu();
     });
 
     this.items = this.buildMainItems();
-
     this.updateMenu();
   }
 
@@ -104,6 +108,7 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   switch_language(lang: string) {
+    this.logger.info(`User initiated language switch to: '${lang}' via Navbar.`);
     this.translationService.setLanguage(lang);
     this.selectedLang = this.translationService.currentLang();
     this.items = this.buildMainItems();
@@ -112,17 +117,20 @@ export class Navbar implements OnInit, OnDestroy {
 
   toggleTheme() {
     const newTheme = this.isDarkMode() ? 'light' : 'dark';
+    this.logger.info(`User toggled theme to: '${newTheme}' via Navbar.`);
     this.themeService.setTheme(newTheme);
   }
 
   logout() {
+    this.logger.info('User clicked logout from Navbar.');
     this.authService.logout();
     this.router.navigate(['/login']);
   }
 
   ngOnDestroy() {
+    this.logger.trace('Navbar component destroyed. Unsubscribing from observables.');
     if (this.themeSubscription) {
-        this.themeSubscription.unsubscribe();
+      this.themeSubscription.unsubscribe();
     }
   }
 }

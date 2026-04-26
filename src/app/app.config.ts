@@ -1,4 +1,4 @@
-import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
@@ -11,12 +11,16 @@ import {
   MissingTranslationHandler,
 } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { CustomMissingTranslationHandler } from './handlers/missing-translation.handler';
+import { CustomMissingTranslationHandler } from './handlers/missing-translation-handler';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './interceptors/auth-interceptor';
 import { TranslationService } from './services/translation-service';
+
+import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
+
+import { environment } from '../environments/environment';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -73,8 +77,13 @@ const MyPreset = definePreset(Aura, {
 registerLocaleData(localeCs);
 
 function getPrefix(): string {
-  const basePath = window.location.pathname.split('/')[1] || '';
-  return basePath ? `/${basePath}/i18n/` : '/i18n/';
+  let baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+
+  if (!baseHref.endsWith('/')) {
+    baseHref += '/';
+  }
+
+  return `${baseHref}i18n/`;
 }
 
 export const appConfig: ApplicationConfig = {
@@ -109,6 +118,13 @@ export const appConfig: ApplicationConfig = {
     },
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor]))
-  ]
+    provideHttpClient(withInterceptors([authInterceptor])),
+    importProvidersFrom(
+      LoggerModule.forRoot({
+        level: NgxLoggerLevel.DEBUG,
+        serverLogLevel: NgxLoggerLevel.ERROR,
+        serverLoggingUrl: `${environment.apiUrl}/api/logs`,
+        disableConsoleLogging: environment.production
+      })
+    )]
 };

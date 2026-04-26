@@ -1,5 +1,6 @@
 {
 	"": "[?]",
+	"An internal server error occurred. Please try again later.": "Došlo k interní chybě serveru. Zkuste to prosím později.",
 	"Average": "Průměr",
 	"Average Rates in the Selected Period": "Průměrné kurzy ve vybraném období",
 	"Average Values": "Průměrné hotnoty",
@@ -38,12 +39,15 @@
 	"Release Date": "Datum vydání",
 	"Search...": "Hledání...",
 	"Select currencies for chart": "Vyberte měny pro graf",
+	"Server is unreachable. Please check your connection or try again later.": "Server není dostupný. Zkontrolujte prosím připojení nebo to zkuste později.",
 	"Strongest Currency": "Nejsilnější měna",
 	"Target Currencies (min 1)": "Cílové měny (min. 1)",
 	"Username": "Uživatelské jméno",
 	"Username is required.": "Uživatelské jméno je povinné.",
 	"Value": "Hodnota",
 	"Weakest Currency": "Nejslabší měna",
+	"least per 1": "nejméně za 1",
+	"most per 1": "nejvíce za 1",
 	"to": "do",
 	"{0} items selected": "{0} vybraných položek"
 }

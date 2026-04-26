@@ -20,6 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TranslationService } from '../../services/translation-service';
+import { NGXLogger } from 'ngx-logger';
 
 @Component({
   selector: 'app-history',
@@ -56,6 +57,7 @@ export class History implements OnInit {
   private themeService = inject(ThemeService);
   private platformId = inject(PLATFORM_ID);
   translationService = inject(TranslationService);
+  private logger = inject(NGXLogger);
 
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
@@ -113,9 +115,11 @@ export class History implements OnInit {
   }
 
   ngOnInit() {
+    this.logger.trace('History component initialized.');
     this.restoreHistoryState();
 
     if (this.dateRange().length !== 2) {
+      this.logger.debug('No valid date range found in storage. Defaulting to last 30 days.');
       const today = new Date();
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(today.getDate() - 30);
@@ -131,7 +135,7 @@ export class History implements OnInit {
         this.fetchHistory();
       },
       error: (err) => {
-        console.error('Error fetching currencies:', err);
+        this.logger.error('Error fetching available currencies for history view.', err);
         this.error.set(this.translate.instant(_('Failed to load available currencies.')));
         this.isLoading.set(false);
       }
@@ -141,14 +145,16 @@ export class History implements OnInit {
   fetchHistory() {
     const dates = this.dateRange();
     if (!dates || dates.length !== 2 || !dates[0] || !dates[1]) {
+      this.logger.warn('History fetch blocked: Invalid date range selected.');
       this.error.set(this.translate.instant(_('Please select a valid date range (From - To).')));
       return;
     }
 
     const targets = this.selectedTargets();
     if (!targets || targets.length === 0) {
-        this.error.set(this.translate.instant(_('Please select at least one target currency for averaging.')));
-        return;
+      this.logger.warn('History fetch blocked: No target currencies selected.');
+      this.error.set(this.translate.instant(_('Please select at least one target currency for averaging.')));
+      return;
     }
 
     this.isLoading.set(true);
@@ -157,11 +163,14 @@ export class History implements OnInit {
     const startDateStr = this.formatDate(dates[0]);
     const endDateStr = this.formatDate(dates[1]);
     const base = this.baseCurrency();
+
+    this.logger.info(`Fetching historical data for base: ${base} from ${startDateStr} to ${endDateStr}.`, { targets });
     this.persistHistoryState();
 
     this.exchangeService.getHistoricalRates(startDateStr, endDateStr, base, targets).subscribe({
       next: (response) => {
         if (!response.averages || response.averages.length === 0) {
+          this.logger.info('Historical fetch successful, but API returned no data for the selected parameters.');
           this.error.set(this.translate.instant(_('No data available for the selected period.')));
           this.chartData = null;
           this.averagesData.set([]);
@@ -169,7 +178,8 @@ export class History implements OnInit {
           this.isLoading.set(false);
           return;
         }
-        
+
+        this.logger.debug(`Historical data retrieved successfully with ${response.averages.length} data points.`);
         this.periodInfo.set(response.period);
         this.averagesData.set(response.averages);
         
@@ -178,7 +188,7 @@ export class History implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Error while fetching averages:', err);
+        this.logger.error('Error while fetching historical averages:', err);
         this.error.set(this.translate.instant(_('Failed to download analytical data. Please check your connection and parameters.')));
         this.isLoading.set(false);
       }
@@ -195,6 +205,7 @@ export class History implements OnInit {
   }
 
   private processChartData(averages: ExchangeRateItem[]) {
+    this.logger.trace('Processing historical averages for chart rendering.');
     this.chartData = {
       labels: averages.map(a => a.currency),
       datasets: [
@@ -211,6 +222,7 @@ export class History implements OnInit {
 
   private initChartOptions() {
     if (isPlatformBrowser(this.platformId)) {
+      this.logger.trace('Initializing history chart options.');
       const documentStyle = getComputedStyle(document.documentElement);
       const textColor = documentStyle.getPropertyValue('--p-text-color');
       const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
@@ -286,6 +298,11 @@ export class History implements OnInit {
     if (storedDateRange.length === 2) {
       this.dateRange.set(storedDateRange);
     }
+
+    this.logger.debug('Restored history view state from local storage.', { 
+      base: storedBaseCurrency, 
+      targetsCount: storedTargets.length 
+    });
   }
 
   private persistHistoryState() {
@@ -318,6 +335,7 @@ export class History implements OnInit {
 
       return parsed.filter((item): item is string => typeof item === 'string');
     } catch {
+      this.logger.warn('Failed to parse array from local storage. Resetting state.', { rawValue: value });
       return [];
     }
   }
@@ -332,6 +350,7 @@ export class History implements OnInit {
     const end = new Date(`${parsedDates[1]}T00:00:00`);
 
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      this.logger.warn('Failed to parse stored date range. Defaulting values.', { rawValue: value });
       return [];
     }
 

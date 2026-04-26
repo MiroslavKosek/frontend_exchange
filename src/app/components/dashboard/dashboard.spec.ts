@@ -75,8 +75,8 @@ describe('Dashboard Component', () => {
 
     expect(mockExchangeService.getAvailableCurrencies).toHaveBeenCalled();
     
-    expect(mockExchangeService.getLatestRates).toHaveBeenCalledWith('CZK');
-    expect(mockExchangeService.getExtremes).toHaveBeenCalledWith('CZK');
+    expect(mockExchangeService.getLatestRates).toHaveBeenCalledWith('CZK', ['EUR', 'USD', 'GBP', 'CHF', 'PLN']);
+    expect(mockExchangeService.getExtremes).toHaveBeenCalledWith('CZK', ['EUR', 'USD', 'GBP', 'CHF', 'PLN']);
     
     expect(component.baseCurrency()).toBe('CZK');
     expect(component.date()).toBe('2026-03-10');
@@ -92,13 +92,10 @@ describe('Dashboard Component', () => {
 
   it('should catch errors when fetching data and set the error message', () => {
     mockExchangeService.getLatestRates.mockReturnValue(throwError(() => new Error('Server Down')));
-    
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { /* no-op to suppress error logs during testing */ });
 
     component.fetchData();
     fixture.detectChanges();
 
-    expect(consoleSpy).toHaveBeenCalled();
     expect(component.isLoading()).toBe(false);
     expect(component.error()).toBe('Failed to load dashboard data. Please try again later.');
   });
@@ -110,8 +107,8 @@ describe('Dashboard Component', () => {
 
     component.onBaseCurrencyChange('USD');
     
-    expect(mockExchangeService.getLatestRates).toHaveBeenCalledWith('USD');
-    expect(mockExchangeService.getExtremes).toHaveBeenCalledWith('USD');
+    expect(mockExchangeService.getLatestRates).toHaveBeenLastCalledWith('USD', ['EUR', 'USD', 'GBP', 'CHF', 'PLN']);
+    expect(mockExchangeService.getExtremes).toHaveBeenLastCalledWith('USD', ['EUR', 'USD', 'GBP', 'CHF', 'PLN']);
     expect(component.baseCurrency()).toBe('USD');
   });
 

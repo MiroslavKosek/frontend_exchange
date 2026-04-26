@@ -18,6 +18,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
 import { forkJoin } from 'rxjs';
 import { TranslationService } from '../../services/translation-service';
+import { NGXLogger } from 'ngx-logger';
 
 @Component({
   selector: 'app-dashboard',
@@ -42,6 +43,7 @@ import { TranslationService } from '../../services/translation-service';
 export class Dashboard implements OnInit {
   private readonly storageKeys = {
     baseCurrency: 'dashboard.baseCurrency',
+    selectedTargets: 'dashboard.selectedTargets', // ADDED
     selectedCurrencies: 'dashboard.selectedCurrencies'
   };
 
@@ -50,6 +52,7 @@ export class Dashboard implements OnInit {
   private themeService = inject(ThemeService);
   private platformId = inject(PLATFORM_ID);
   translationService = inject(TranslationService);
+  private logger = inject(NGXLogger);
 
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
@@ -73,6 +76,7 @@ export class Dashboard implements OnInit {
     }[] } | null = null;
   chartOptions: Record<string, unknown> = {};
   
+  selectedTargets = signal<string[]>(['EUR', 'USD', 'GBP', 'CHF', 'PLN']);
   selectedCurrencies = signal<ExchangeRateItem[]>([]);
 
   constructor() {
@@ -98,37 +102,44 @@ export class Dashboard implements OnInit {
     });
 
     effect(() => {
+      this.selectedTargets();
       this.selectedCurrencies();
       this.persistDashboardState();
     });
   }
 
   ngOnInit() {
+    this.logger.trace('Dashboard component initialized.');
     this.restoreDashboardState();
 
     this.isLoading.set(true);
     this.exchangeService.getAvailableCurrencies().subscribe({
       next: (currencies) => {
+        this.logger.debug(`Loaded ${currencies.length} available currencies.`);
         this.availableCurrencies.set(currencies);
-        this.fetchData(this.baseCurrency());
+        // Pass the targets during initialization
+        this.fetchData(this.baseCurrency(), this.selectedTargets());
       },
       error: (err) => {
-        console.error('Error fetching currencies:', err);
+        this.logger.error('Error fetching available currencies for dashboard.', err);
         this.error.set(this.translate.instant(_('Failed to load available currencies.')));
         this.isLoading.set(false);
       }
     });
   }
 
-  fetchData(targetBase = 'CZK') {
+  fetchData(targetBase = 'CZK', targetCurrencies: string[] = this.selectedTargets()) {
+    this.logger.info(`Fetching dashboard data for base currency: ${targetBase} and target currencies: ${targetCurrencies.join(', ')}`);
     this.isLoading.set(true);
     this.error.set(null);
 
     forkJoin({
-      ratesData: this.exchangeService.getLatestRates(targetBase),
-      extremesData: this.exchangeService.getExtremes(targetBase)
+      ratesData: this.exchangeService.getLatestRates(targetBase, targetCurrencies),
+      extremesData: this.exchangeService.getExtremes(targetBase, targetCurrencies)
     }).subscribe({
       next: (results) => {
+        this.logger.debug('Dashboard data fetched successfully.', { base: results.ratesData.base });
+
         const data = results.ratesData;
         const extremes = results.extremesData;
         const storedSelection = this.getStoredSelectedCurrencies();
@@ -140,6 +151,7 @@ export class Dashboard implements OnInit {
         const initialSelection = storedSelection.length > 0
           ? data.rates.filter((rate) => storedSelection.includes(rate.currency))
           : data.rates.slice(0, 10);
+        
         this.selectedCurrencies.set(initialSelection);
         
         this.strongestCurrency.set(extremes.strongest);
@@ -152,7 +164,7 @@ export class Dashboard implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Error fetching dashboard data:', err);
+        this.logger.error(`Error fetching dashboard data for ${targetBase}:`, err);
         this.error.set(this.translate.instant(_('Failed to load dashboard data. Please try again later.')));
         this.isLoading.set(false);
       }
@@ -160,17 +172,33 @@ export class Dashboard implements OnInit {
   }
 
   onBaseCurrencyChange(newBase: string) {
+    this.logger.info(`User changed dashboard base currency to: ${newBase}`);
     this.baseCurrency.set(newBase);
     this.persistDashboardState();
-     this.fetchData(newBase);
+    this.fetchData(newBase, this.selectedTargets());
+  }
+
+  onTargetCurrenciesChange(targets: string[]) {
+    this.logger.info(`User updated target currencies for dashboard API. Count: ${targets.length}`);
+    this.selectedTargets.set(targets);
+    this.persistDashboardState();
+    this.fetchData(this.baseCurrency(), targets);
+  }
+
+  onSelectedCurrenciesChange(selected: ExchangeRateItem[]) {
+    this.logger.info(`User updated selected currencies for dashboard chart. Count: ${selected.length}`);
+    this.selectedCurrencies.set(selected);
+    this.persistDashboardState();
   }
 
   private updateChartData(selectedRates: ExchangeRateItem[]) {
     if (!selectedRates || selectedRates.length === 0) {
+      this.logger.trace('No currencies selected for chart rendering.');
       this.chartData = null;
       return;
     }
 
+    this.logger.trace(`Updating dashboard chart data with ${selectedRates.length} currencies.`);
     this.chartData = {
       labels: selectedRates.map(r => r.currency),
       datasets: [
@@ -187,6 +215,7 @@ export class Dashboard implements OnInit {
 
   private initChartOptions() {
     if (isPlatformBrowser(this.platformId)) {
+      this.logger.trace('Initializing dashboard chart options based on active theme.');
       const documentStyle = getComputedStyle(document.documentElement);
       const textColor = documentStyle.getPropertyValue('--p-text-color');
       const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
@@ -197,9 +226,7 @@ export class Dashboard implements OnInit {
         aspectRatio: 0.8,
         plugins: {
           legend: {
-            labels: {
-              color: textColor
-            }
+            labels: { color: textColor }
           },
           tooltip: {
             callbacks: {
@@ -210,26 +237,15 @@ export class Dashboard implements OnInit {
         },
         scales: {
           x: {
-            ticks: {
-              color: textColorSecondary,
-              font: {
-                weight: 500
-              }
-            },
-            grid: {
-              color: surfaceBorder,
-              drawBorder: false
-            }
+            ticks: { color: textColorSecondary, font: { weight: 500 } },
+            grid: { color: surfaceBorder, drawBorder: false }
           },
           y: {
             ticks: {
               color: textColorSecondary,
               callback: (value: number) => value.toLocaleString(this.translate.getCurrentLang())
             },
-            grid: {
-              color: surfaceBorder,
-              drawBorder: false
-            }
+            grid: { color: surfaceBorder, drawBorder: false }
           }
         }
       };
@@ -237,6 +253,7 @@ export class Dashboard implements OnInit {
   }
 
   clearGlobalFilter(table: Table) {
+    this.logger.trace('User cleared dashboard table filter.');
     table.clear();
   }
 
@@ -247,7 +264,13 @@ export class Dashboard implements OnInit {
 
     const storedBaseCurrency = localStorage.getItem(this.storageKeys.baseCurrency);
     if (storedBaseCurrency) {
+      this.logger.debug(`Restored dashboard base currency from local storage: ${storedBaseCurrency}`);
       this.baseCurrency.set(storedBaseCurrency);
+    }
+
+    const storedTargets = this.parseStoredArray(localStorage.getItem(this.storageKeys.selectedTargets));
+    if (storedTargets.length > 0) {
+      this.selectedTargets.set(storedTargets);
     }
   }
 
@@ -257,32 +280,28 @@ export class Dashboard implements OnInit {
     }
 
     localStorage.setItem(this.storageKeys.baseCurrency, this.baseCurrency());
+    localStorage.setItem(this.storageKeys.selectedTargets, JSON.stringify(this.selectedTargets()));
     localStorage.setItem(
       this.storageKeys.selectedCurrencies,
       JSON.stringify(this.selectedCurrencies().map((rate) => rate.currency))
     );
   }
 
-  private getStoredSelectedCurrencies(): string[] {
-    if (!this.isBrowser()) {
-      return [];
-    }
-
-    const raw = localStorage.getItem(this.storageKeys.selectedCurrencies);
-    if (!raw) {
-      return [];
-    }
-
+  private parseStoredArray(value: string | null): string[] {
+    if (!value) return [];
     try {
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) {
-        return [];
-      }
-
+      const parsed = JSON.parse(value);
+      if (!Array.isArray(parsed)) return [];
       return parsed.filter((item): item is string => typeof item === 'string');
     } catch {
+      this.logger.warn('Failed to parse array from local storage. Resetting state.', { rawValue: value });
       return [];
     }
+  }
+
+  private getStoredSelectedCurrencies(): string[] {
+    if (!this.isBrowser()) return [];
+    return this.parseStoredArray(localStorage.getItem(this.storageKeys.selectedCurrencies));
   }
 
   private isBrowser(): boolean {
