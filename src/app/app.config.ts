@@ -11,7 +11,7 @@ import {
   MissingTranslationHandler,
 } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { CustomMissingTranslationHandler } from './handlers/missing-translation.handler';
+import { CustomMissingTranslationHandler } from './handlers/missing-translation-handler';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';

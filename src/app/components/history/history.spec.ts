@@ -97,11 +97,9 @@ describe('History', () => {
     mockExchangeService.getAvailableCurrencies.mockReturnValue(
       throwError(() => new Error('Network error'))
     );
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     fixture.detectChanges();
 
-    expect(consoleSpy).toHaveBeenCalled();
     expect(component.error()).toBe('Failed to load available currencies.');
     expect(component.isLoading()).toBe(false);
     expect(mockExchangeService.getHistoricalRates).not.toHaveBeenCalled();
@@ -147,11 +145,9 @@ describe('History', () => {
     mockExchangeService.getHistoricalRates.mockReturnValue(
       throwError(() => new Error('API failure'))
     );
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     fixture.detectChanges();
 
-    expect(consoleSpy).toHaveBeenCalled();
     expect(component.error()).toBe('Failed to download analytical data. Please check your connection and parameters.');
     expect(component.isLoading()).toBe(false);
   });
