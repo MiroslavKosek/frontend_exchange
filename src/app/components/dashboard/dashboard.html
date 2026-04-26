@@ -2,29 +2,44 @@
     <div class="flex flex-column md:flex-row items-start gap-4">
         <div>
             <h1 class="text-3xl font-bold m-0 mb-3 text-color">{{ 'Current Rates' | translate }}</h1>
-            <label for="baseCurrencySelect" class="mr-1">{{ 'Base Currency' | translate }}:</label>
-            <p-select 
-                id="baseCurrencySelect"
-                [options]="availableCurrencies()" 
-                [ngModel]="baseCurrency()" 
-                (ngModelChange)="onBaseCurrencyChange($event)" 
-                class="w-24 ml-1 mb-1"
-                size="small">
-            </p-select>
+            <div>
+                <label for="base-currency-select" class="mr-1">{{ 'Base Currency' | translate }}:</label>
+                <p-select 
+                    id="base-currency-select"
+                    [options]="availableCurrencies()" 
+                    [ngModel]="baseCurrency()" 
+                    (ngModelChange)="onBaseCurrencyChange($event)" 
+                    class="w-24 ml-1 mb-1"
+                    size="small">
+                </p-select>
+            </div>
+            <div>
+                <label for="target-currency-select">{{ 'Target Currencies (min 1)' | translate }}:</label>
+                <p-multiSelect
+                    id="target-currency-select"
+                    [options]="availableCurrencies()" 
+                    [ngModel]="selectedTargets()" 
+                    (ngModelChange)="onTargetCurrenciesChange($event)" 
+                    [maxSelectedLabels]="10"
+                    selectedItemsLabel="{{ '{0} items selected' | translate }}"
+                    class="w-full mt-2 mb-1"
+                    size="small">
+                </p-multiSelect>
+            </div>
             <p class="text-500 m-0 mt-1">
                 {{ 'Release Date' | translate }}: <strong>{{ date() | date:undefined:undefined:translationService.getAngularLocale() }}</strong>
             </p>
         </div>
         @if (!isLoading() && !error() && allRates().length > 0) {
             <div class="card p-4 border-l-4 border-l-green-500 md:ml-auto">
-                <div class="text-500 font-semibold mb-1 text-sm uppercase">{{ 'Strongest Currency' | translate }} (least per 1 {{ baseCurrency() }})</div>
+                <div class="text-500 font-semibold mb-1 text-sm uppercase">{{ 'Strongest Currency' | translate }} ({{ 'least per 1' | translate }} {{ baseCurrency() }})</div>
                 <div class="flex items-end gap-2">
                     <div class="text-3xl font-bold text-color">{{ strongestCurrency()?.currency }}</div>
                     <div class="text-3xl text-500 mx-auto">{{ strongestCurrency()?.value | number:'1.2-4':translationService.getAngularLocale() }}</div>
                 </div>
             </div>
             <div class="card p-4 border-l-4 border-l-red-500">
-                <div class="text-500 font-semibold mb-1 text-sm uppercase">{{ 'Weakest Currency' | translate }} (most per 1 {{ baseCurrency() }})</div>
+                <div class="text-500 font-semibold mb-1 text-sm uppercase">{{ 'Weakest Currency' | translate }} ({{ 'most per 1' | translate }} {{ baseCurrency() }})</div>
                 <div class="flex items-end gap-2">
                     <div class="text-3xl font-bold text-color">{{ weakestCurrency()?.currency }}</div>
                     <div class="text-3xl text-500 mx-auto">{{ weakestCurrency()?.value | number:'1.2-4':translationService.getAngularLocale() }}</div>
@@ -50,7 +65,8 @@
                         
                     <p-multiSelect 
                         [options]="allRates()" 
-                        [(ngModel)]="selectedCurrencies" 
+                        [ngModel]="selectedCurrencies()"
+                        (ngModelChange)="onSelectedCurrenciesChange($event)"
                         optionLabel="currency" 
                         placeholder="{{ 'Select currencies for chart' | translate }}" 
                         [filter]="true"

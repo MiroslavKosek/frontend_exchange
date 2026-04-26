@@ -61,7 +61,14 @@ describe('ExchangeService', () => {
       ]);
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/api/rates/latest?base=CZK`);
+    const req = httpMock.expectOne((request) => {
+      const symbols = request.params.getAll('symbols') ?? [];
+      return request.url === `${environment.apiUrl}/api/rates/latest`
+        && request.params.get('base') === 'CZK'
+        && symbols.length === 2
+        && symbols[0] === 'EUR'
+        && symbols[1] === 'USD';
+    });
     expect(req.request.method).toBe('GET');
     req.flush({
       base: 'CZK',
@@ -85,7 +92,14 @@ describe('ExchangeService', () => {
       expect(response).toEqual(mockResponse);
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/api/rates/analytics/extremes?base=CZK`);
+    const req = httpMock.expectOne((request) => {
+      const symbols = request.params.getAll('symbols') ?? [];
+      return request.url === `${environment.apiUrl}/api/rates/analytics/extremes`
+        && request.params.get('base') === 'CZK'
+        && symbols.length === 2
+        && symbols[0] === 'EUR'
+        && symbols[1] === 'USD';
+    });
     expect(req.request.method).toBe('GET');
     req.flush(mockResponse);
   });

@@ -2,6 +2,7 @@ import 'vitest-canvas-mock';
 import { beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
+import { NGXLogger } from 'ngx-logger';
 import { of, Subject } from 'rxjs';
 
 // Stub ResizeObserver used by Chart.js for responsive charts (not implemented in jsdom).
@@ -31,6 +32,8 @@ if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
 }
 
 beforeEach(() => {
+  TestBed.resetTestingModule();
+
   const langChange = new Subject();
   const translationChange = new Subject();
   const defaultLangChange = new Subject();
@@ -38,6 +41,17 @@ beforeEach(() => {
 
   TestBed.configureTestingModule({
     providers: [
+      {
+        provide: NGXLogger,
+        useValue: {
+          trace: () => undefined,
+          debug: () => undefined,
+          info: () => undefined,
+          warn: () => undefined,
+          error: () => undefined,
+          fatal: () => undefined
+        }
+      },
       {
         provide: TranslateService,
         useValue: {
@@ -60,3 +74,4 @@ beforeEach(() => {
     ]
   });
 });
+
