@@ -1,59 +1,71 @@
-# FrontendExchange
+# Exchange rate client
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.1.
+An Angular front end for the exchange-rate API: current rates, charted history and
+a login screen, in Czech and English.
 
-## Development server
+Talks to [backend_exchange](https://github.com/MiroslavKosek/backend_exchange).
 
-To start a local development server, run:
+## What it does
 
-```bash
-ng serve
+- **Dashboard** with current rates for a chosen base currency.
+- **History** view that charts a rate over a date range (Chart.js).
+- **Login** against the API's JWT endpoint, with a route guard that keeps unauthenticated
+  users out of the rest of the app.
+- **Czech and English**, switchable at runtime.
+
+## Design notes
+
+**Translations are authored as `.po`, shipped as JSON.** `npm run extract` pulls
+translatable strings out of the templates into `extract.pot`, translators work in
+`public/i18n/cs.po` and `en.po`, and `scripts/i18n-po-to-json.mjs` converts them to the
+JSON that `@ngx-translate` loads at runtime. The point is that nobody hand-edits a JSON
+translation file and silently drops a key.
+
+**Route guard, not template guard.** `auth-guard` blocks the route, so a protected view
+never starts loading and never fires its API calls for an anonymous visitor.
+
+## Layout
+
+```text
+src/app/
+  components/
+    layout/     navbar/          # shell
+    login/                       # JWT login form
+    dashboard/                   # current rates
+    history/                     # charted history
+  guards/auth-guard.ts           # route protection
+public/i18n/                     # cs/en, .po sources and generated .json
+scripts/i18n-po-to-json.mjs      # .po -> .json conversion
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Every component has a `.spec.ts` next to it.
 
-## Code scaffolding
+## Running it
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+The API has to be running first, see
+[backend_exchange](https://github.com/MiroslavKosek/backend_exchange).
 
-```bash
-ng generate component component-name
+```shell
+npm install
+npm start                        # dev server on http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Scripts
 
-```bash
-ng generate --help
-```
+| Command | What it does |
+|---|---|
+| `npm start` | Dev server with live reload |
+| `npm run build` | Production build |
+| `npm test` | Unit tests |
+| `npm run lint` | ESLint |
+| `npm run extract` | Pull translatable strings into `extract.pot` |
+| `npm run translate` | Regenerate the JSON translations from the `.po` files |
 
-## Building
+## Stack
 
-To build the project run:
+Angular, TypeScript, PrimeNG with PrimeFlex and PrimeIcons, Chart.js, `@ngx-translate`,
+ngx-logger, ESLint.
 
-```bash
-ng build
-```
+## Licence
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+MIT, see [LICENSE](./LICENSE).
